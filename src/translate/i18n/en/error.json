@@ -1,0 +1,64 @@
+{
+  "api": {
+    "validation_error": "Validate error",
+    "bad_request": "Bad request",
+    "unauthorized": "You must be logged in to perform this action",
+    "forbidden": "Unable to perform this action",
+    "server_internal_error": "Internal server error",
+    "service_unavailable": "Service unavailable",
+    "video": {
+      "not_found": "Video not found",
+      "gen_s3_failed": "Generate s3 failed",
+      "create": {
+        "video_id_has_been_used": "Video id has been used or not found. Please create new id."
+      },
+      "processing": {
+        "origin_not_found": "Not found origin mp4 url"
+      },
+      "process": {
+        "error": "Process video error"
+      }
+    },
+    "file": {
+      "not_found": "File not found",
+      "create": {
+        "file_id_has_been_used": "File id has been used or not found. Please create new id."
+      }
+    },
+    "image": {
+      "not_found": "Image not found",
+      "create": {
+        "image_id_has_been_used": "Image id has been used or not found. Please create new id."
+      }
+    }
+  },
+  "app": {
+    "auth_token": {
+      "expired": "Auth token expired"
+    }
+  },
+  "image": {
+    "not_support": "Not support image",
+    "unprocessable": "Unprocessable image",
+    "process": {
+      "error": "Process image error"
+    },
+    "file_size": {
+      "too_large": "Image size exceeds the maximum limit"
+    },
+    "resolution": {
+      "too_large": "Image resolution exceeds the maximum limit"
+    },
+    "animation_frames": {
+      "too_large": "Image animation frames exceeds the maximum limit"
+    }
+  },
+  "bucket": {
+    "not_found": "Bucket not found"
+  },
+  "upload": {
+    "error": {
+      "file_size": "File size exceeds the maximum limit"
+    }
+  }
+}

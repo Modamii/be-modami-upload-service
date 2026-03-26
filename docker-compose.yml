@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  dev:
+    container_name: upload_manage_service
+    image: upload_manage_service:1.0.0
+    build:
+      context: .
+      target: development
+      dockerfile: ./Dockerfile
+    user: root
+    command: yarn run start:debug
+    ports:
+      - 3101:3000
+      # - 9229:9229
+    environment:
+        - AWS_SDK_LOAD_CONFIG=1
+    links:
+      - postgresUpload
+    networks:
+      upload_network:
+        ipv4_address: 10.10.33.10
+    volumes:
+      - .:/usr/src/app
+      - ~/.aws:/root/.aws
+      - ../image-example:/root/image-example
+    depends_on:
+      - postgresUpload
+
+  image_proxy:
+    container_name: image_proxy
+    image: darthsim/imgproxy:v3.24.1
+    user: root
+    ports:
+      - 3300:8080
+      # - 9229:9229
+    environment:
+        - AWS_SDK_LOAD_CONFIG=1
+        - IMGPROXY_DOWNLOAD_TIMEOUT=30
+        - IMGPROXY_KEEP_ALIVE_TIMEOUT=30
+        - IMGPROXY_READ_TIMEOUT=30
+        - IMGPROXY_WRITE_TIMEOUT=30
+        - IMGPROXY_CLIENT_KEEP_ALIVE_TIMEOUT=30
+        - IMGPROXY_USE_S3=true
+        - IMGPROXY_LOCAL_FILESYSTEM_ROOT=/root/image-example
+        - IMGPROXY_MAX_SRC_RESOLUTION=135
+        - IMGPROXY_LOG_FORMAT=json
+        - IMGPROXY_REQUESTS_QUEUE_SIZE=10
+        - IMGPROXY_CONCURRENCY=1
+        - IMGPROXY_MAX_ANIMATION_FRAMES=100
+        - IMGPROXY_MAX_ANIMATION_FRAME_RESOLUTION=40
+        - IMGPROXY_ALLOW_SECURITY_OPTIONS=true
+    networks:
+      upload_network:
+        ipv4_address: 10.10.33.20
+    volumes:
+      - ~/.aws:/root/.aws
+      - ../image-example:/root/image-example
+    restart: always
+
+  postgresUpload:
+    image: postgres:13.7
+    container_name: postgresUpload
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - 5435:5432
+    env_file:
+      - .env
+    volumes:
+      - ../upload-manage-data/postgres:/var/lib/postgresql/data
+    networks:
+      upload_network:
+        ipv4_address: 10.10.33.30
+
+networks:
+  upload_network:
+    external: true
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.10.33.0/24
+          ip_range: 10.10.33.0/24
+          gateway: 10.10.33.1

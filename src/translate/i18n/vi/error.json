@@ -1,0 +1,64 @@
+{
+  "api": {
+    "validation_error": "Lỗi xác thực",
+    "bad_request": "Yêu cầu không hợp lệ",
+    "unauthorized": "Bạn phải đăng nhập để thực hiện hành động này",
+    "forbidden": "Không thể thực hiện hành động này",
+    "server_internal_error": "Lỗi máy chủ nội bộ",
+    "service_unavailable": "Dịch vụ không khả dụng",
+    "video": {
+      "not_found": "Không tìm thấy video",
+      "gen_s3_failed": "Tạo s3 không thành công",
+      "create": {
+        "video_id_has_been_used": "ID video đã được sử dụng hoặc không tìm thấy. Vui lòng tạo ID mới."
+      },
+      "processing": {
+        "origin_not_found": "Không tìm thấy URL mp4 gốc"
+      },
+      "process": {
+        "error": "Lỗi xử lý video"
+      }
+    },
+    "file": {
+      "not_found": "Không tìm thấy tệp",
+      "create": {
+        "file_id_has_been_used": "ID tệp đã được sử dụng hoặc không tìm thấy. Vui lòng tạo ID mới."
+      }
+    },
+    "image": {
+      "not_found": "Không tìm thấy hình ảnh",
+      "create": {
+        "image_id_has_been_used": "ID hình ảnh đã được sử dụng hoặc không tìm thấy. Vui lòng tạo ID mới."
+      }
+    }
+  },
+  "app": {
+    "auth_token": {
+      "expired": "Mã xác thực đã hết hạn"
+    }
+  },
+  "image": {
+    "not_support": "Hình ảnh không được hỗ trợ",
+    "unprocessable": "Hình ảnh không thể xử lý",
+    "process": {
+      "error": "Lỗi xử lý hình ảnh"
+    },
+    "file_size": {
+      "too_large": "Kích thước hình ảnh vượt quá giới hạn cho phép"
+    },
+    "resolution": {
+      "too_large": "Độ phân giải hình ảnh vượt quá giới hạn cho phép"
+    },
+    "animation_frames": {
+      "too_large": "Số khung hình động của ảnh vượt quá giới hạn cho phép"
+    }
+  },
+  "bucket": {
+    "not_found": "Không tìm thấy bucket"
+  },
+  "upload":{
+    "error":{
+      "file_size": "Kích thước tệp vượt quá giới hạn cho phép"
+    }
+  }
+}

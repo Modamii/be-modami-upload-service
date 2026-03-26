@@ -1,0 +1,22 @@
+name: master
+run-name: ${{ github.ref_name }}
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: read    # This is required for actions/checkout
+  id-token: write   # This is required for requesting the JWT
+  pull-requests: read # This is required for action dorny/paths-filter@v2
+  repository-projects: read
+
+jobs:
+  build_service_production:
+    name: Build Services for Production
+    uses: ./.github/workflows/_service_builder.yaml
+    with:
+      environment: master
+      service_env: pro
+    secrets: inherit
+    

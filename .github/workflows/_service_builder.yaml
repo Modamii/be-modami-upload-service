@@ -1,0 +1,40 @@
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      service_env:
+        required: true
+        type: string
+      aws_role:
+        required: false
+        type: string
+        default: arn:aws:iam::210668178631:role/modami-all-github-action-iam-role
+      aws_sm_serret_id:
+        required: false
+        type: string
+        default: /modami/ci
+      service_name:
+        required: false
+        type: string
+        default: upload-manage # Warning: Must to update this if you dont want override other squad docker image
+      work_space:
+        required: false
+        type: string
+        default: ""
+
+jobs:
+  build_service_upload_manage:
+    name: Build Service
+    if: ${{ !cancelled() }}
+    uses: ""/modami-github-workflow/.github/workflows/build_common_service_v2.yaml@master
+    with:
+      environment: ${{ inputs.environment }}
+      aws_role: ${{ inputs.aws_role }}
+      aws_sm_secret_id: ${{ inputs.aws_sm_serret_id }}
+      work_place: ${{ inputs.work_space }}
+      service_name: ${{ inputs.service_name }}
+      service_env: ${{ inputs.service_env }}
+      service_image: "docker-hub/beingroup/${{ inputs.service_env }}-modami-upload-manage-service"
+    secrets: inherit

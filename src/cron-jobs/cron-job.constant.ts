@@ -1,0 +1,1 @@
+export const MAX_AGE_TEMP_FILE_IN_MINUTE = 60;
