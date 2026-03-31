@@ -8,7 +8,15 @@ import {
   ParseUUIDPipe,
   Version,
 } from '@nestjs/common';
-import { ApiOperation, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+  ApiBadRequestResponse,
+} from '@nestjs/swagger';
 import { BaseController } from '../common/base';
 import { ImagesService } from '../images/images.service';
 import {
@@ -28,13 +36,16 @@ export class ImagesInternalController extends BaseController {
   }
 
   @ApiOperation({
-    summary: 'Create image id',
-    description: 'Create image id and presigned url',
+    summary: 'Create image record (internal)',
+    description:
+      'Internal endpoint for server-to-server calls. Creates an image record on behalf of a user ' +
+      'and returns a presigned upload URL.',
   })
   @ApiOkResponse({
-    description: 'Create image id successful',
-    type: CreateImageInternalDto,
+    description: 'Image record created. Use presigned_url or presigned_post to upload the file.',
+    type: CreateImageResponseDto,
   })
+  @ApiBadRequestResponse({ description: 'Invalid body or unsupported mime type' })
   @Post(ROUTES.INTERNAL.IMAGE.CREATE.PATH)
   @Version(ROUTES.INTERNAL.IMAGE.CREATE.VERSIONS)
   async create(@Body() body: CreateImageInternalDto) {
@@ -45,11 +56,18 @@ export class ImagesInternalController extends BaseController {
   }
 
   @ApiOperation({
-    summary: 'delete image by id',
-    description:
-      'delete image by id, this API will delete record in DB, files in s3',
+    summary: 'Delete image by ID (internal)',
+    description: 'Permanently deletes the image record from the database and the file from MinIO.',
   })
-  @ApiOkResponse({})
+  @ApiParam({
+    name: 'id',
+    description: 'UUID of the image to delete',
+    type: 'string',
+    format: 'uuid',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
+  @ApiOkResponse({ description: 'Image deleted successfully' })
+  @ApiNotFoundResponse({ description: 'Image not found' })
   @Delete(ROUTES.INTERNAL.IMAGE.DELETE.PATH)
   @Version(ROUTES.INTERNAL.IMAGE.DELETE.VERSIONS)
   async deleteById(@Param('id', ParseUUIDPipe) id: string) {
@@ -58,10 +76,20 @@ export class ImagesInternalController extends BaseController {
   }
 
   @ApiOperation({
-    summary: 'Get image by ids',
-    description: '',
+    summary: 'Get images by IDs (internal)',
+    description: 'Returns image records for the given list of UUIDs. Also exposes internal fields like presigned_url.',
+  })
+  @ApiBody({
+    description: 'Array of image UUIDs',
+    type: [String],
+    examples: {
+      example: {
+        value: ['550e8400-e29b-41d4-a716-446655440000'],
+      },
+    },
   })
   @ApiOkResponse({
+    description: 'List of image records (with internal fields)',
     type: [ImageDto],
   })
   @Post(ROUTES.INTERNAL.IMAGE.GET_BY_IDS.PATH)
@@ -75,12 +103,21 @@ export class ImagesInternalController extends BaseController {
   }
 
   @ApiOperation({
-    summary: 'Update image (Only use to migrate data)',
-    description: 'Only use to migrate data',
+    summary: 'Update image resource / owner (internal)',
+    description: 'Changes the resource type or owner of an image. Intended for data migrations only.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'UUID of the image to update',
+    type: 'string',
+    format: 'uuid',
+    example: '550e8400-e29b-41d4-a716-446655440000',
   })
   @ApiOkResponse({
-    type: [ImageDto],
+    description: 'Updated image record',
+    type: ImageDto,
   })
+  @ApiNotFoundResponse({ description: 'Image not found' })
   @Put(ROUTES.INTERNAL.IMAGE.UPDATE.PATH)
   @Version(ROUTES.INTERNAL.IMAGE.UPDATE.VERSIONS)
   async changeResource(
@@ -94,12 +131,23 @@ export class ImagesInternalController extends BaseController {
   }
 
   @ApiOperation({
-    summary: 'Copy image (Only use to migrate data)',
-    description: 'Only use to migrate data',
+    summary: 'Copy image to a new resource (internal)',
+    description:
+      'Copies the image file in MinIO and creates a new record with the target resource type. ' +
+      'Used for data migrations only.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'UUID of the source image',
+    type: 'string',
+    format: 'uuid',
+    example: '550e8400-e29b-41d4-a716-446655440000',
   })
   @ApiOkResponse({
-    type: [ImageDto],
+    description: 'New image record (copy)',
+    type: ImageDto,
   })
+  @ApiNotFoundResponse({ description: 'Source image not found' })
   @Post(ROUTES.INTERNAL.IMAGE.COPY.PATH)
   @Version(ROUTES.INTERNAL.IMAGE.COPY.VERSIONS)
   async copy(

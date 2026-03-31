@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   HealthCheck,
   HealthCheckResult,
@@ -31,11 +31,20 @@ export class HealthController {
     private readonly healthService: HealthService,
   ) {}
 
+  @ApiOperation({ summary: 'Liveness probe', description: 'Returns 200 OK when the service process is running.' })
+  @ApiOkResponse({ description: 'Service is alive', schema: { type: 'string', example: 'OK' } })
   @Get('livez')
   public live(): string {
     return 'OK';
   }
 
+  @ApiOperation({
+    summary: 'Readiness probe',
+    description:
+      'Checks all dependencies (database, Kafka, Redis, storage). ' +
+      'Returns 200 when all checks pass, 503 when one or more checks fail.',
+  })
+  @ApiOkResponse({ description: 'All dependency checks passed' })
   @Get('readyz')
   @HealthCheck()
   public async ready(): Promise<HealthCheckResult> {

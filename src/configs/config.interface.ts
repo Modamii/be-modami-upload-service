@@ -57,6 +57,7 @@ export interface DatabaseConfig {
 }
 
 export interface AwsS3Config {
+  endpoint: string;
   region: string;
   accessKeyId: string;
   secretAccessKey: string;

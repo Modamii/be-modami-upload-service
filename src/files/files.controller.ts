@@ -13,10 +13,14 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBody,
   ApiConsumes,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiParam,
   ApiSecurity,
   ApiTags,
+  ApiUnauthorizedResponse,
+  ApiBadRequestResponse,
 } from '@nestjs/swagger';
 import { diskStorage } from 'multer';
 
@@ -34,6 +38,7 @@ import { UserDto } from 'src/auth/dto';
 
 @ApiSecurity('authorization')
 @ApiTags('Files')
+@ApiUnauthorizedResponse({ description: 'Missing or invalid authorization token' })
 @Controller()
 export class FilesController extends BaseController {
   constructor(private readonly service: FilesService) {
@@ -41,11 +46,13 @@ export class FilesController extends BaseController {
   }
 
   @ApiOperation({
-    summary: 'Create file id',
-    description: '',
+    summary: 'Create file record',
+    description:
+      'Creates a file record in the database. ' +
+      'Use the returned `id` with the upload endpoint to attach the actual file.',
   })
   @ApiOkResponse({
-    description: 'Create file id successful',
+    description: 'File record created successfully',
     type: FileDto,
   })
   @Post(ROUTES.FILE.CREATE.PATH)
@@ -58,10 +65,11 @@ export class FilesController extends BaseController {
   }
 
   @ApiOperation({
-    summary: 'Get, filter files',
-    description: '',
+    summary: 'List all files for the authenticated user',
+    description: 'Returns all file records owned by the current user.',
   })
   @ApiOkResponse({
+    description: 'List of file records',
     type: [FileDto],
   })
   @Get(ROUTES.FILE.GET_FILES.PATH)
@@ -74,12 +82,21 @@ export class FilesController extends BaseController {
   }
 
   @ApiOperation({
-    summary: 'Get file by id',
-    description: '',
+    summary: 'Get file by ID',
+    description: 'Returns a single file record by its UUID.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'UUID of the file',
+    type: 'string',
+    format: 'uuid',
+    example: '550e8400-e29b-41d4-a716-446655440000',
   })
   @ApiOkResponse({
+    description: 'File record',
     type: FileDto,
   })
+  @ApiNotFoundResponse({ description: 'File not found' })
   @Get(ROUTES.FILE.GET_DETAIL.PATH)
   @Version(ROUTES.FILE.GET_DETAIL.VERSIONS)
   async getById(@Param('id', ParseUUIDPipe) id: string) {
@@ -90,10 +107,20 @@ export class FilesController extends BaseController {
   }
 
   @ApiOperation({
-    summary: 'Get file by ids',
-    description: '',
+    summary: 'Get multiple files by IDs',
+    description: 'Returns an array of file records matching the provided list of UUIDs.',
+  })
+  @ApiBody({
+    description: 'Array of file UUIDs',
+    type: [String],
+    examples: {
+      example: {
+        value: ['550e8400-e29b-41d4-a716-446655440000'],
+      },
+    },
   })
   @ApiOkResponse({
+    description: 'List of file records',
     type: [FileDto],
   })
   @Post(ROUTES.FILE.GET_BY_IDS.PATH)
@@ -107,15 +134,27 @@ export class FilesController extends BaseController {
 
   @ApiOperation({
     summary: 'Upload file',
-    description: '',
+    description:
+      'Uploads a file via multipart/form-data and attaches it to the specified file record. ' +
+      `Max size: ${parseInt(process.env.MAX_FILE_SIZE_IN_MB) || 100} MB.`,
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'UUID of the file record to attach the upload to',
+    type: 'string',
+    format: 'uuid',
+    example: '550e8400-e29b-41d4-a716-446655440000',
   })
   @ApiBody({
-    description: 'Upload',
+    description: 'File upload',
     type: UploadFileDto,
   })
   @ApiOkResponse({
+    description: 'File uploaded successfully',
     type: FileDto,
   })
+  @ApiBadRequestResponse({ description: 'Unsupported mime type or file exceeds size limit' })
+  @ApiNotFoundResponse({ description: 'File record not found' })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
     // https://stackoverflow.com/questions/49096068/upload-file-using-nestjs-and-multer

@@ -19,7 +19,6 @@ import {
 
 import { deleteFile } from '../common/helpers';
 
-import { S3_ACL } from '../videos/videos.constant';
 import { AwsS3Config } from '../configs/config.interface';
 import { VideoUploadType } from '../common/dto/upload.dto';
 import {
@@ -46,9 +45,20 @@ export class ObjectStorageService {
     this.s3 = new S3({
       accessKeyId: this.s3Config.accessKeyId,
       secretAccessKey: this.s3Config.secretAccessKey,
-      region: this.s3Config.region,
+      region: this.s3Config.region || 'us-east-1',
+      endpoint: this.s3Config.endpoint,
+      s3ForcePathStyle: true,
+      signatureVersion: 'v4',
     });
-    this.s3Client = new S3Client({});
+    this.s3Client = new S3Client({
+      region: this.s3Config.region || 'us-east-1',
+      endpoint: this.s3Config.endpoint,
+      forcePathStyle: true,
+      credentials: {
+        accessKeyId: this.s3Config.accessKeyId,
+        secretAccessKey: this.s3Config.secretAccessKey,
+      },
+    });
     this.tempPath = this.configService.get<string>('tempPath');
   }
 
@@ -412,7 +422,6 @@ export class ObjectStorageService {
         Bucket: bucket,
         Body: fileContent,
         Key: key,
-        ACL: S3_ACL,
         ContentLength: stat.size,
       };
       if (originalName) {
@@ -456,8 +465,26 @@ export class ObjectStorageService {
     await this.bulkDeleteByKeys(bucket, keys);
   }
 
+  private parseKeyFromUrl(url: string, bucket: string): string {
+    // Try s3:// format first (legacy AWS S3 URLs)
+    const s3Parsed = s3ParseUrl(url);
+    if (s3Parsed?.key) return s3Parsed.key;
+
+    // Handle HTTP/HTTPS path-style URLs (MinIO: http://host/bucket/key)
+    try {
+      const parsed = new URL(url);
+      const parts = parsed.pathname.split('/').filter(Boolean);
+      if (parts[0] === bucket) {
+        return parts.slice(1).join('/');
+      }
+      return parts.join('/');
+    } catch {
+      return url;
+    }
+  }
+
   private async bulkDeleteByUrls(bucket: string, urls: string[]) {
-    const keys = urls.map((url) => s3ParseUrl(url)?.key);
+    const keys = urls.map((url) => this.parseKeyFromUrl(url, bucket));
     this.bulkDeleteByKeys(bucket, keys);
   }
 

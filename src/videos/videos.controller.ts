@@ -15,10 +15,15 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBody,
   ApiConsumes,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiParam,
+  ApiQuery,
   ApiSecurity,
   ApiTags,
+  ApiUnauthorizedResponse,
+  ApiBadRequestResponse,
 } from '@nestjs/swagger';
 import { Response } from 'express';
 import { diskStorage } from 'multer';
@@ -41,6 +46,7 @@ import { UserDto } from 'src/auth/dto';
 
 @ApiSecurity('authorization')
 @ApiTags('Videos')
+@ApiUnauthorizedResponse({ description: 'Missing or invalid authorization token' })
 @Controller()
 export class VideosController extends BaseController {
   constructor(private readonly videoService: VideosService) {
@@ -48,13 +54,16 @@ export class VideosController extends BaseController {
   }
 
   @ApiOperation({
-    summary: 'Create video id v2',
-    description: 'Create video id and presigned url',
+    summary: 'Create video record and get presigned upload URL (v2+)',
+    description:
+      'Creates a video record and returns a presigned URL or presigned POST form for direct upload to MinIO. ' +
+      'Requires `x-version-id: 2.0` or higher. After upload, video processing is triggered automatically.',
   })
   @ApiOkResponse({
-    description: 'Create video id v2 successful',
+    description: 'Video record created. Use presigned_url or presigned_post to upload the video file.',
     type: CreateVideoResponseDto,
   })
+  @ApiBadRequestResponse({ description: 'Invalid request body (unsupported mime type)' })
   @Post(ROUTES.VIDEO.CREATE.PATH)
   @Version(AppHelper.getVersionsSupportedFrom(VERSION_2_0_0))
   async createVideoV2(@AuthUser() user: UserDto, @Body() body: CreateVideoDto) {
@@ -68,11 +77,13 @@ export class VideosController extends BaseController {
   }
 
   @ApiOperation({
-    summary: 'Create video id',
-    description: '',
+    summary: 'Create video record (v1)',
+    description:
+      'Legacy endpoint (v1.0). Creates a video record without presigned POST support. ' +
+      'Use v2+ for new integrations.',
   })
   @ApiOkResponse({
-    description: 'Create video id successful',
+    description: 'Video record created successfully',
     type: VideoDto,
   })
   @Post(ROUTES.VIDEO.CREATE.PATH)
@@ -83,11 +94,12 @@ export class VideosController extends BaseController {
   }
 
   @ApiOperation({
-    summary: 'Get, filter videos',
-    description: '',
+    summary: 'List all videos for the authenticated user',
+    description: 'Returns all video records owned by the current user.',
   })
   @ApiOkResponse({
-    type: VideoDto,
+    description: 'List of video records',
+    type: [VideoDto],
   })
   @Get(ROUTES.VIDEO.GET_VIDEOS.PATH)
   @Version(ROUTES.VIDEO.GET_VIDEOS.VERSIONS)
@@ -97,12 +109,30 @@ export class VideosController extends BaseController {
   }
 
   @ApiOperation({
-    summary: 'Get video by id',
-    description: '',
+    summary: 'Get video by ID',
+    description:
+      'Returns a single video record by its UUID. ' +
+      'Use the `wait` query parameter to block until processing completes.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'UUID of the video',
+    type: 'string',
+    format: 'uuid',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
+  @ApiQuery({
+    name: 'wait',
+    description: 'If true, blocks until video processing finishes (status becomes DONE or ERROR)',
+    required: false,
+    type: 'boolean',
+    example: false,
   })
   @ApiOkResponse({
+    description: 'Video record',
     type: VideoDto,
   })
+  @ApiNotFoundResponse({ description: 'Video not found' })
   @Get(ROUTES.VIDEO.GET_DETAIL.PATH)
   @Version(ROUTES.VIDEO.GET_DETAIL.VERSIONS)
   async getById(
@@ -120,11 +150,21 @@ export class VideosController extends BaseController {
   }
 
   @ApiOperation({
-    summary: 'Get video by ids',
-    description: '',
+    summary: 'Get multiple videos by IDs',
+    description: 'Returns an array of video records matching the provided list of UUIDs.',
+  })
+  @ApiBody({
+    description: 'Array of video UUIDs',
+    type: [String],
+    examples: {
+      example: {
+        value: ['550e8400-e29b-41d4-a716-446655440000'],
+      },
+    },
   })
   @ApiOkResponse({
-    type: VideoDto,
+    description: 'List of video records',
+    type: [VideoDto],
   })
   @Post(ROUTES.VIDEO.GET_BY_IDS.PATH)
   @Version(ROUTES.VIDEO.GET_BY_IDS.VERSIONS)
@@ -134,15 +174,27 @@ export class VideosController extends BaseController {
   }
 
   @ApiOperation({
-    summary: 'Upload video',
-    description: '',
+    summary: 'Upload video file',
+    description:
+      'Uploads a video file directly via multipart/form-data. ' +
+      'Supported formats: mp4, webm, mov, avi, mkv, flv, wmv, mpeg, m4v, 3gp, ts, hevc. ' +
+      `Max size: ${parseInt(process.env.MAX_VIDEO_SIZE_IN_MB) || 100} MB.`,
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'UUID of the video record to attach the file to',
+    type: 'string',
+    format: 'uuid',
+    example: '550e8400-e29b-41d4-a716-446655440000',
   })
   @ApiOkResponse({
-    description: 'Upload video successful',
+    description: 'Video uploaded successfully; processing starts asynchronously',
     type: VideoDto,
   })
+  @ApiBadRequestResponse({ description: 'Unsupported mime type or file exceeds size limit' })
+  @ApiNotFoundResponse({ description: 'Video record not found' })
   @ApiBody({
-    description: 'Upload',
+    description: 'Video file upload',
     type: VideoUploadDto,
   })
   @ApiConsumes('multipart/form-data')
@@ -194,9 +246,11 @@ export class VideosController extends BaseController {
   }
 
   @ApiOperation({
-    summary: 'Get kaltura url. (internal)',
-    description: 'use redirect internal nginx',
+    summary: 'Get Kaltura redirect URL (internal)',
+    description: 'Returns an X-Accel-Redirect header for internal nginx proxy to Kaltura. Not for public use.',
   })
+  @ApiParam({ name: 'id', description: 'UUID of the video', type: 'string', format: 'uuid' })
+  @ApiParam({ name: 'format', description: 'Kaltura playback format', type: 'string' })
   @Get(ROUTES.VIDEO.GET_KATURA_REDIRECT_URL.PATH)
   @Version(ROUTES.VIDEO.GET_KATURA_REDIRECT_URL.VERSIONS)
   async getKalturaRedirectUrl(
@@ -210,9 +264,10 @@ export class VideosController extends BaseController {
   }
 
   @ApiOperation({
-    summary: 'Processing video, test only. (internal)',
-    description: '',
+    summary: 'Trigger video processing (test/internal only)',
+    description: 'Manually triggers the processing pipeline for a video. Use only for testing.',
   })
+  @ApiParam({ name: 'id', description: 'UUID of the video', type: 'string', format: 'uuid' })
   @Post(ROUTES.VIDEO.PROCESSING.PATH)
   @Version(ROUTES.VIDEO.PROCESSING.VERSIONS)
   processing(@Param('id', ParseUUIDPipe) id: string) {

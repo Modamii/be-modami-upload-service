@@ -41,13 +41,14 @@ export default (): Config => ({
     },
   },
   s3: {
-    region: process.env.AWS_S3_REGION,
-    accessKeyId: process.env.AWS_S3_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_S3_SECRET_ACCESS_KEY,
-    userUploadVideosBucket: process.env.AWS_S3_USER_UPLOAD_VIDEOS_BUCKET,
-    userUploadImagesBucket: process.env.AWS_S3_USER_UPLOAD_IMAGES_BUCKET,
-    userUploadFilesBucket: process.env.AWS_S3_USER_UPLOAD_FILES_BUCKET,
-    eKycBucket: process.env.AWS_S3_EKYC_BUCKET,
+    endpoint: process.env.MINIO_ENDPOINT,
+    region: process.env.MINIO_REGION || 'us-east-1',
+    accessKeyId: process.env.MINIO_ACCESS_KEY,
+    secretAccessKey: process.env.MINIO_SECRET_KEY,
+    userUploadVideosBucket: process.env.MINIO_VIDEOS_BUCKET,
+    userUploadImagesBucket: process.env.MINIO_IMAGES_BUCKET,
+    userUploadFilesBucket: process.env.MINIO_FILES_BUCKET,
+    eKycBucket: process.env.MINIO_EKYC_BUCKET,
   },
   kafka: {
     clientID: process.env.KAFKA_CLIENT_ID,
@@ -76,8 +77,16 @@ export default (): Config => ({
   },
   swagger: {
     enabled: process.env.SWAGGER_ENABLE === 'true',
-    title: 'Upload manage service',
-    description: 'The upload manage API description',
+    title: 'Upload Management Service',
+    description:
+      'REST API for managing file, image, and video uploads.\n\n' +
+      '**Storage backend:** MinIO (S3-compatible)\n\n' +
+      '**Upload flow:**\n' +
+      '1. Call `POST /images`, `POST /videos`, or `POST /files` to create a record and receive a presigned URL.\n' +
+      '2. Upload the binary directly to MinIO using the presigned URL (no server proxy).\n' +
+      '3. Poll `GET /:resource/:id?wait=true` to wait for async processing to finish.\n\n' +
+      '**Authentication:** Pass a JWT in the `authorization` header.\n\n' +
+      '**API versioning:** Set `x-version-id` header (e.g. `1.0`, `2.0`).',
     version: '1.0',
     path: 'api',
     apiBasePath: process.env.SWAGGER_API_BASE_PATH || '',

@@ -1,5 +1,5 @@
 import { Controller, Post, Body, Logger, Version } from '@nestjs/common';
-import { ApiOperation, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { BaseController } from '../common/base';
 import { FileDto } from '../files/dto';
 import { FilesService } from '../files/files.service';
@@ -15,11 +15,23 @@ export class FilesInternalController extends BaseController {
   }
 
   @ApiOperation({
-    summary: 'Get video by ids',
-    description: '',
+    summary: 'Get files by IDs (internal)',
+    description:
+      'Returns file records for the given list of UUIDs. ' +
+      'Also marks files as used when first retrieved.',
+  })
+  @ApiBody({
+    description: 'Array of file UUIDs',
+    type: [String],
+    examples: {
+      example: {
+        value: ['550e8400-e29b-41d4-a716-446655440000'],
+      },
+    },
   })
   @ApiOkResponse({
-    type: FileDto,
+    description: 'List of file records',
+    type: [FileDto],
   })
   @Post(ROUTES.INTERNAL.FILE.GET_BY_IDS.PATH)
   @Version(ROUTES.INTERNAL.FILE.GET_BY_IDS.VERSIONS)

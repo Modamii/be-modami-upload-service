@@ -9,10 +9,16 @@ import {
   Post,
 } from '@nestjs/common';
 import {
+  ApiBody,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiParam,
+  ApiQuery,
   ApiSecurity,
   ApiTags,
+  ApiUnauthorizedResponse,
+  ApiBadRequestResponse,
 } from '@nestjs/swagger';
 import { CreateImageResponseDto, GetImageQueryDto } from './dto/image.dto';
 
@@ -25,6 +31,7 @@ import { UserDto } from 'src/auth/dto';
 
 @ApiSecurity('authorization')
 @ApiTags('Images')
+@ApiUnauthorizedResponse({ description: 'Missing or invalid authorization token' })
 @Controller(['images', `${PRIVATE_OPS_PATH}/images`])
 export class ImagesController extends BaseController {
   constructor(private readonly imageService: ImagesService) {
@@ -32,13 +39,16 @@ export class ImagesController extends BaseController {
   }
 
   @ApiOperation({
-    summary: 'Create image id',
-    description: 'Create image id and presigned url',
+    summary: 'Create image record and get presigned upload URL',
+    description:
+      'Creates an image record in the database and returns a presigned URL and presigned POST form ' +
+      'for the client to upload the file directly to MinIO. After uploading, the image is processed asynchronously.',
   })
   @ApiOkResponse({
-    description: 'Create image id successful',
+    description: 'Image record created successfully. Use the returned presigned_url or presigned_post to upload the file.',
     type: CreateImageResponseDto,
   })
+  @ApiBadRequestResponse({ description: 'Invalid request body (unsupported mime type, missing fields)' })
   @Post(ROUTES.IMAGE.CREATE.PATH)
   @Version(ROUTES.IMAGE.CREATE.VERSIONS)
   async create(@AuthUser() user: UserDto, @Body() body: CreateImageDto) {
@@ -49,10 +59,11 @@ export class ImagesController extends BaseController {
   }
 
   @ApiOperation({
-    summary: 'Get, filter images',
-    description: '',
+    summary: 'List all images for the authenticated user',
+    description: 'Returns all image records owned by the current user.',
   })
   @ApiOkResponse({
+    description: 'List of image records',
     type: [ImageDto],
   })
   @Get(ROUTES.IMAGE.GET_IMAGES.PATH)
@@ -65,12 +76,30 @@ export class ImagesController extends BaseController {
   }
 
   @ApiOperation({
-    summary: 'Get image by id',
-    description: '',
+    summary: 'Get image by ID',
+    description:
+      'Returns a single image record by its UUID. ' +
+      'Use the `wait` query parameter to block until processing is complete.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'UUID of the image',
+    type: 'string',
+    format: 'uuid',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
+  @ApiQuery({
+    name: 'wait',
+    description: 'If true, the request blocks until image processing finishes (status becomes DONE or ERROR)',
+    required: false,
+    type: 'boolean',
+    example: false,
   })
   @ApiOkResponse({
+    description: 'Image record',
     type: ImageDto,
   })
+  @ApiNotFoundResponse({ description: 'Image not found' })
   @Get(ROUTES.IMAGE.GET_DETAIL.PATH)
   @Version(ROUTES.IMAGE.GET_DETAIL.VERSIONS)
   async getById(
@@ -89,10 +118,20 @@ export class ImagesController extends BaseController {
   }
 
   @ApiOperation({
-    summary: 'Get image by ids',
-    description: '',
+    summary: 'Get multiple images by IDs',
+    description: 'Returns an array of image records matching the provided list of UUIDs.',
+  })
+  @ApiBody({
+    description: 'Array of image UUIDs',
+    type: [String],
+    examples: {
+      example: {
+        value: ['550e8400-e29b-41d4-a716-446655440000', '6ba7b810-9dad-11d1-80b4-00c04fd430c8'],
+      },
+    },
   })
   @ApiOkResponse({
+    description: 'List of image records',
     type: [ImageDto],
   })
   @Post(ROUTES.IMAGE.GET_BY_IDS.PATH)

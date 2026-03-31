@@ -14,18 +14,27 @@ services:
       - 3101:3000
       # - 9229:9229
     environment:
-        - AWS_SDK_LOAD_CONFIG=1
+      - NODE_ENV=development
+      - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_REGION=us-east-1
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_VIDEOS_BUCKET=videos
+      - MINIO_IMAGES_BUCKET=images
+      - MINIO_FILES_BUCKET=files
+      - MINIO_EKYC_BUCKET=ekyc
     links:
       - postgresUpload
+      - minio
     networks:
       upload_network:
         ipv4_address: 10.10.33.10
     volumes:
       - .:/usr/src/app
-      - ~/.aws:/root/.aws
       - ../image-example:/root/image-example
     depends_on:
       - postgresUpload
+      - minio-init
 
   image_proxy:
     container_name: image_proxy
@@ -33,30 +42,79 @@ services:
     user: root
     ports:
       - 3300:8080
-      # - 9229:9229
     environment:
-        - AWS_SDK_LOAD_CONFIG=1
-        - IMGPROXY_DOWNLOAD_TIMEOUT=30
-        - IMGPROXY_KEEP_ALIVE_TIMEOUT=30
-        - IMGPROXY_READ_TIMEOUT=30
-        - IMGPROXY_WRITE_TIMEOUT=30
-        - IMGPROXY_CLIENT_KEEP_ALIVE_TIMEOUT=30
-        - IMGPROXY_USE_S3=true
-        - IMGPROXY_LOCAL_FILESYSTEM_ROOT=/root/image-example
-        - IMGPROXY_MAX_SRC_RESOLUTION=135
-        - IMGPROXY_LOG_FORMAT=json
-        - IMGPROXY_REQUESTS_QUEUE_SIZE=10
-        - IMGPROXY_CONCURRENCY=1
-        - IMGPROXY_MAX_ANIMATION_FRAMES=100
-        - IMGPROXY_MAX_ANIMATION_FRAME_RESOLUTION=40
-        - IMGPROXY_ALLOW_SECURITY_OPTIONS=true
+      - IMGPROXY_DOWNLOAD_TIMEOUT=30
+      - IMGPROXY_KEEP_ALIVE_TIMEOUT=30
+      - IMGPROXY_READ_TIMEOUT=30
+      - IMGPROXY_WRITE_TIMEOUT=30
+      - IMGPROXY_CLIENT_KEEP_ALIVE_TIMEOUT=30
+      - IMGPROXY_USE_S3=true
+      - IMGPROXY_S3_ENDPOINT=http://minio:9000
+      - IMGPROXY_S3_FORCE_PATH_STYLE=true
+      - AWS_ACCESS_KEY_ID=minioadmin
+      - AWS_SECRET_ACCESS_KEY=minioadmin
+      - AWS_REGION=us-east-1
+      - IMGPROXY_LOCAL_FILESYSTEM_ROOT=/root/image-example
+      - IMGPROXY_MAX_SRC_RESOLUTION=135
+      - IMGPROXY_LOG_FORMAT=json
+      - IMGPROXY_REQUESTS_QUEUE_SIZE=10
+      - IMGPROXY_CONCURRENCY=1
+      - IMGPROXY_MAX_ANIMATION_FRAMES=100
+      - IMGPROXY_MAX_ANIMATION_FRAME_RESOLUTION=40
+      - IMGPROXY_ALLOW_SECURITY_OPTIONS=true
     networks:
       upload_network:
         ipv4_address: 10.10.33.20
     volumes:
-      - ~/.aws:/root/.aws
       - ../image-example:/root/image-example
+    depends_on:
+      - minio
     restart: always
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    command: server /data --console-address ":9001"
+    ports:
+      - 9000:9000
+      - 9001:9001
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    volumes:
+      - minio-data:/data
+    networks:
+      upload_network:
+        ipv4_address: 10.10.33.40
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  minio-init:
+    image: minio/mc:latest
+    container_name: minio_init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set myminio http://minio:9000 minioadmin minioadmin;
+      mc mb --ignore-existing myminio/videos;
+      mc mb --ignore-existing myminio/images;
+      mc mb --ignore-existing myminio/files;
+      mc mb --ignore-existing myminio/ekyc;
+      mc anonymous set public myminio/videos;
+      mc anonymous set public myminio/images;
+      mc anonymous set public myminio/files;
+      echo 'MinIO buckets initialised';
+      exit 0;
+      "
+    networks:
+      upload_network:
+        ipv4_address: 10.10.33.50
 
   postgresUpload:
     image: postgres:13.7
@@ -75,6 +133,9 @@ services:
     networks:
       upload_network:
         ipv4_address: 10.10.33.30
+
+volumes:
+  minio-data:
 
 networks:
   upload_network:
