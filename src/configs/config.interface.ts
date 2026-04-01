@@ -11,7 +11,6 @@ export interface Config {
   hlsPrefixUrl: string;
   swagger: ISwaggerConfig;
   redis: IRedisConfig;
-  redisSharedStore: IRedisConfig;
   sqs: ISQSConfig;
   imageProxyUrl: string;
 }
@@ -22,33 +21,13 @@ export interface NestConfig {
 }
 
 export interface DatabaseConfig {
-  video: {
-    connection: string;
-    host: string;
-    port: number;
-    database: string;
-    username: string;
-    password: string;
-    schema: string;
-  };
-  image: {
-    connection: string;
-    host: string;
-    port: number;
-    database: string;
-    username: string;
-    password: string;
-    schema: string;
-  };
-  file: {
-    connection: string;
-    host: string;
-    port: number;
-    database: string;
-    username: string;
-    password: string;
-    schema: string;
-  };
+  connection: string;
+  host: string;
+  port: number;
+  database: string;
+  username: string;
+  password: string;
+  schema: string;
   pool: {
     max: number;
     min: number;

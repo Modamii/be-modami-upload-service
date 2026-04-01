@@ -1,5 +1,10 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiOkResponse,
+  ApiOperation,
+  ApiServiceUnavailableResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import {
   HealthCheck,
   HealthCheckResult,
@@ -45,6 +50,7 @@ export class HealthController {
       'Returns 200 when all checks pass, 503 when one or more checks fail.',
   })
   @ApiOkResponse({ description: 'All dependency checks passed' })
+  @ApiServiceUnavailableResponse({ description: 'One or more dependency checks failed (database, Kafka, Redis, or storage)' })
   @Get('readyz')
   @HealthCheck()
   public async ready(): Promise<HealthCheckResult> {

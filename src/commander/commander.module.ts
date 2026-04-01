@@ -4,7 +4,7 @@ import { Module } from '@nestjs/common';
 import { MapImagesInS3ToDBCommand } from './test.commander';
 import { ConfigModule } from '@nestjs/config';
 import config from '../configs/config';
-import { ImageDatabaseModule } from '../database/database.module';
+import { DatabaseModule } from '../database/database.module';
 import { LoggerProvider } from '../logger/logger.provider';
 import { SetupImageBucketCommand } from './setup-image-bucket.commander';
 
@@ -16,7 +16,7 @@ import { SetupImageBucketCommand } from './setup-image-bucket.commander';
       cache: true,
       expandVariables: true,
     }),
-    ImageDatabaseModule,
+    DatabaseModule,
     ImagesModule,
   ],
   providers: [SetupImageBucketCommand],

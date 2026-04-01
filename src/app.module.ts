@@ -10,10 +10,7 @@ import {
 import config from './configs/config';
 import { ConsumerModule } from './consumer/consumer.module';
 import { CronJobsModule } from './cron-jobs/cron-jobs.module';
-import {
-  FileDatabaseModule,
-  VideoDatabaseModule,
-} from './database/database.module';
+import { DatabaseModule } from './database/database.module';
 import { FilesModule } from './files/files.module';
 import { HealthModule } from './health/health.module';
 import { ImagesModule } from './images/images.module';
@@ -37,8 +34,7 @@ import { VimeoModule } from './vimeo/vimeo.module';
     ScheduleModule.forRoot(),
     HealthModule,
     CronJobsModule,
-    VideoDatabaseModule,
-    FileDatabaseModule,
+    DatabaseModule,
     AuthModule,
     KafkaModule,
     ConsumerModule,

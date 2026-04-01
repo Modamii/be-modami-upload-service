@@ -24,6 +24,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
   ApiBadRequestResponse,
+  ApiNoContentResponse,
 } from '@nestjs/swagger';
 import { Response } from 'express';
 import { diskStorage } from 'multer';
@@ -251,6 +252,8 @@ export class VideosController extends BaseController {
   })
   @ApiParam({ name: 'id', description: 'UUID of the video', type: 'string', format: 'uuid' })
   @ApiParam({ name: 'format', description: 'Kaltura playback format', type: 'string' })
+  @ApiOkResponse({ description: 'X-Accel-Redirect header set; response body is empty', schema: { type: 'object' } })
+  @ApiNotFoundResponse({ description: 'Video not found' })
   @Get(ROUTES.VIDEO.GET_KATURA_REDIRECT_URL.PATH)
   @Version(ROUTES.VIDEO.GET_KATURA_REDIRECT_URL.VERSIONS)
   async getKalturaRedirectUrl(
@@ -268,6 +271,7 @@ export class VideosController extends BaseController {
     description: 'Manually triggers the processing pipeline for a video. Use only for testing.',
   })
   @ApiParam({ name: 'id', description: 'UUID of the video', type: 'string', format: 'uuid' })
+  @ApiNoContentResponse({ description: 'Processing pipeline triggered asynchronously' })
   @Post(ROUTES.VIDEO.PROCESSING.PATH)
   @Version(ROUTES.VIDEO.PROCESSING.VERSIONS)
   processing(@Param('id', ParseUUIDPipe) id: string) {

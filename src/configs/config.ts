@@ -7,37 +7,17 @@ export default (): Config => ({
     env: process.env.NODE_ENV || 'development',
   },
   database: {
-    video: {
-      connection: process.env.POSTGRES_VIDEO_CONNECTION,
-      host: process.env.POSTGRES_VIDEO_HOST,
-      port: parseInt(process.env.POSTGRES_VIDEO_PORT),
-      database: process.env.POSTGRES_VIDEO_DB,
-      username: process.env.POSTGRES_VIDEO_USER,
-      password: process.env.POSTGRES_VIDEO_PASSWORD,
-      schema: process.env.POSTGRES_VIDEO_SCHEMA,
-    },
-    image: {
-      connection: process.env.POSTGRES_IMAGE_CONNECTION,
-      host: process.env.POSTGRES_IMAGE_HOST,
-      port: parseInt(process.env.POSTGRES_IMAGE_PORT),
-      database: process.env.POSTGRES_IMAGE_DB,
-      username: process.env.POSTGRES_IMAGE_USER,
-      password: process.env.POSTGRES_IMAGE_PASSWORD,
-      schema: process.env.POSTGRES_IMAGE_SCHEMA,
-    },
-    file: {
-      connection: process.env.POSTGRES_FILE_CONNECTION,
-      host: process.env.POSTGRES_FILE_HOST,
-      port: parseInt(process.env.POSTGRES_FILE_PORT),
-      database: process.env.POSTGRES_FILE_DB,
-      username: process.env.POSTGRES_FILE_USER,
-      password: process.env.POSTGRES_FILE_PASSWORD,
-      schema: process.env.POSTGRES_FILE_SCHEMA,
-    },
+    connection: process.env.POSTGRES_CONNECTION,
+    host: process.env.POSTGRES_HOST,
+    port: parseInt(process.env.POSTGRES_PORT),
+    database: process.env.POSTGRES_DB,
+    username: process.env.POSTGRES_USER,
+    password: process.env.POSTGRES_PASSWORD,
+    schema: process.env.POSTGRES_SCHEMA,
     pool: {
-      max: Number(process.env.POSTGRES_POOL_MIN) || 1,
-      min: Number(process.env.POSTGRES_POOL_MAX) || 1,
-      idle: Number(process.env.POSTGRES_POOL_IDLE) || 1,
+      max: Number(process.env.POSTGRES_POOL_MAX) || 5,
+      min: Number(process.env.POSTGRES_POOL_MIN) || 1,
+      idle: Number(process.env.POSTGRES_POOL_IDLE) || 10000,
     },
   },
   s3: {
@@ -103,20 +83,6 @@ export default (): Config => ({
     ssl: process.env.REDIS_CACHE_TLS === 'true',
     prefix:
       (process.env.REDIS_CACHE_PREFIX || 'local').replace(/:$/g, '') + ':',
-  },
-  redisSharedStore: {
-    db: 0,
-    clusterHosts: (process.env.REDIS_SHARED_STORE_CLUSTER_NODES || '')
-      .split(',')
-      .filter((v) => v),
-    host: process.env.REDIS_SHARED_STORE_HOST || '',
-    port: parseInt(process.env.REDIS_SHARED_STORE_PORT),
-    username: process.env.REDIS_SHARED_STORE_USERNAME || 'default',
-    password: process.env.REDIS_SHARED_STORE_PASSWORD,
-    ssl: process.env.REDIS_SHARED_STORE_TLS === 'true',
-    prefix:
-      (process.env.REDIS_SHARED_STORE_PREFIX || 'develop').replace(/:$/g, '') +
-      ':',
   },
   tempPath: process.env.TEMP_PATH || '/tmp/',
   hlsPrefixUrl:

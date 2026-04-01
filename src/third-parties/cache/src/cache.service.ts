@@ -8,27 +8,20 @@ import { hasCacheConfig } from './cache.utils';
 @Injectable()
 export class CacheManageService {
   private cacheClient: CacheService;
-  private sharedCacheClient: CacheService;
 
   public constructor(private configService: ConfigService) {
     const redisConfig = this.configService.get<IRedisConfig>('redis');
     if (hasCacheConfig(redisConfig)) {
       this.cacheClient = new CacheService(RedisStore.create(redisConfig));
     }
-
-    const redisSharedStoreConfig =
-      this.configService.get<IRedisConfig>('redisSharedStore');
-    if (hasCacheConfig(redisSharedStoreConfig)) {
-      this.sharedCacheClient = new CacheService(
-        RedisStore.create(redisSharedStoreConfig),
-      );
-    }
   }
+
   public getCacheService(): CacheService {
     return this.cacheClient;
   }
+
   public getSharedCacheService(): CacheService {
-    return this.sharedCacheClient;
+    return this.cacheClient;
   }
 }
 
