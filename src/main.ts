@@ -17,15 +17,15 @@ process.on('unhandledRejection', (error) => {
 });
 
 import { AppModule } from './app.module';
-import { KafkaGateway } from './third-parties/kafka';
-import { HttpExceptionFilter } from './common/filters';
-import { LoggerProvider } from './logger/logger.provider';
-import { HandleResponseInterceptor } from './common/interceptors';
-import { VideosService } from './videos/videos.service';
+import { KafkaGateway } from './pkg/kafka';
+import { HttpExceptionFilter } from './pkg/common/filters';
+import { LoggerProvider } from './pkg/logger/logger.provider';
+import { HandleResponseInterceptor } from './pkg/common/interceptors';
+import { VideoService } from './internal/service/video.service';
 
-import { ISwaggerConfig, NestConfig } from './configs/config.interface';
-import { KafkaHealthBootstrap } from './health/kafka-health.bootstrap';
-import { HEADER_VERSION_KEY } from './common/constants';
+import { ISwaggerConfig, NestConfig } from './pkg/configs/config.interface';
+import { KafkaHealthBootstrap } from './pkg/health/kafka-health.bootstrap';
+import { HEADER_VERSION_KEY } from './pkg/common/constants';
 
 async function setupSwagger(app, configService: ConfigService) {
   const swaggerConfig = configService.get<ISwaggerConfig>('swagger');
@@ -105,7 +105,7 @@ async function bootstrap() {
     bufferLogs: true,
   });
   const configService = app.get(ConfigService);
-  const videoService = app.get(VideosService);
+  const videoService = app.get(VideoService);
 
   await setupSwagger(app, configService);
   await setupKafka(app, configService);

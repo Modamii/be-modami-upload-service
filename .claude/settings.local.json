@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm outdated:*)",
+      "Bash(npm install:*)",
+      "Bash(ls -la /mnt/c/Users/phongnc6/Personal/sources/Another/modami-v2/be-modami-upload-service/*.json /mnt/c/Users/phongnc6/Personal/sources/Another/modami-v2/be-modami-upload-service/tsconfig*)",
+      "Bash(npx tsc:*)",
+      "Bash(git -C /mnt/c/Users/phongnc6/Personal/sources/Another/modami-v2/be-modami-upload-service log --oneline --all)",
+      "Read(//mnt/c/Users/phongnc6/Personal/sources/Another/modami-v2/be-modami-upload-service/=== src/pkg/**)",
+      "Read(//mnt/c/Users/phongnc6/Personal/sources/Another/modami-v2/be-modami-upload-service/=== src/internal/**)",
+      "Read(//mnt/c/Users/phongnc6/Personal/sources/Another/modami-v2/be-modami-upload-service/=== src/commander/**)",
+      "Read(//mnt/c/Users/phongnc6/Personal/sources/Another/modami-v2/be-modami-upload-service/**)"
+    ]
+  }
+}

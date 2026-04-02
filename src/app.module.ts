@@ -6,21 +6,18 @@ import {
   AuthMiddleware,
   AuthModule,
   WHITELIST_PATH,
-} from './auth';
-import config from './configs/config';
-import { ConsumerModule } from './consumer/consumer.module';
-import { CronJobsModule } from './cron-jobs/cron-jobs.module';
-import { DatabaseModule } from './database/database.module';
-import { FilesModule } from './files/files.module';
-import { HealthModule } from './health/health.module';
-import { ImagesModule } from './images/images.module';
-import { InternalModule } from './internal/images.module';
-import { LibModule } from './lib.module';
-import { ObjectStorageModule } from './object-storage/object-storage.module';
-import { KafkaModule } from './third-parties/kafka';
-import { I18nGlobalModule } from './translate/i18n-global.module';
-import { VideosModule } from './videos/videos.module';
-import { VimeoModule } from './vimeo/vimeo.module';
+} from './pkg/auth';
+import config from './pkg/configs/config';
+import { ConsumerModule } from './pkg/consumer/consumer.module';
+import { CronJobsModule } from './pkg/cron-jobs/cron-jobs.module';
+import { DatabaseModule } from './pkg/database/database.module';
+import { HealthModule } from './pkg/health/health.module';
+import { InternalModule } from './internal/adapter/handler/images.module';
+import { LibModule } from './pkg/lib.module';
+import { ObjectStorageModule } from './pkg/object-storage/object-storage.module';
+import { KafkaModule } from './pkg/kafka';
+import { I18nGlobalModule } from './pkg/translate/i18n-global.module';
+import { VimeoModule } from './pkg/vimeo/vimeo.module';
 
 @Module({
   imports: [
@@ -40,9 +37,6 @@ import { VimeoModule } from './vimeo/vimeo.module';
     ConsumerModule,
     ObjectStorageModule,
     VimeoModule,
-    VideosModule,
-    FilesModule,
-    ImagesModule,
     InternalModule,
     I18nGlobalModule,
   ],

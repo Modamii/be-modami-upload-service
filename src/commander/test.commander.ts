@@ -1,9 +1,9 @@
-import { IMAGE_STATUS } from './../images/dto/image.dto';
-import { ImageHelper, ImagePath } from './../images/images.helper';
+import { IMAGE_STATUS } from '../internal/domain/image.domain';
+import { ImageHelper, ImagePath } from '../internal/domain/image.helper';
 import { Command, CommandRunner, Option } from 'nest-commander';
-import { ImagesService } from '../images/images.service';
+import { ImageService } from '../internal/service/image.service';
 import { ConfigService } from '@nestjs/config';
-import { AwsS3Config } from '../configs/config.interface';
+import { AwsS3Config } from '../pkg/configs/config.interface';
 import {
   S3Client,
   ListObjectsV2Command,
@@ -25,7 +25,7 @@ export class MapImagesInS3ToDBCommand extends CommandRunner {
   private s3Client: S3Client;
   constructor(
     private configService: ConfigService,
-    private imagesService: ImagesService,
+    private imagesService: ImageService,
   ) {
     super();
     const s3Config = this.configService.get<AwsS3Config>('s3');

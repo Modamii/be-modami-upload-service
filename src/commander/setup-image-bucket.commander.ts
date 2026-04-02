@@ -1,9 +1,8 @@
-import { Resource } from '../images/dto/image.dto';
-import { ImagePath } from '../images/images.helper';
+import { Resource } from '../internal/domain/image.domain';
+import { ImagePath } from '../internal/domain/image.helper';
 import { Command, CommandRunner, Option } from 'nest-commander';
-import { ImagesService } from '../images/images.service';
 import { ConfigService } from '@nestjs/config';
-import { AwsS3Config } from '../configs/config.interface';
+import { AwsS3Config } from '../pkg/configs/config.interface';
 import {
   S3Client,
   PutBucketNotificationConfigurationCommand,
@@ -22,10 +21,7 @@ interface CommandOptions {
 export class SetupImageBucketCommand extends CommandRunner {
   private logger = new Logger(SetupImageBucketCommand.name);
   private s3Client: S3Client;
-  constructor(
-    private configService: ConfigService,
-    private imagesService: ImagesService,
-  ) {
+  constructor(private configService: ConfigService) {
     super();
     const s3Config = this.configService.get<AwsS3Config>('s3');
     this.s3Client = new S3Client({});
