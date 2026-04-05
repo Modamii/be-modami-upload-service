@@ -1,6 +1,6 @@
 'use strict';
 
-const fileSchema = process.env.POSTGRES_IMAGE_SCHEMA;
+const fileSchema = process.env.POSTGRES_SCHEMA || 'public';
 
 module.exports = {
   async up(queryInterface, Sequelize) {

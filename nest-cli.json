@@ -5,7 +5,7 @@
   "compilerOptions": {
     "assets": [
       {
-        "include": "translate/i18n/**/*",
+        "include": "pkg/translate/i18n/**/*",
         "watchAssets": true
       }
     ]

@@ -7,16 +7,27 @@ import {
   CreateImageResponseDto,
   IMAGE_STATUS,
 } from '../domain/image.domain';
-import { Injectable, Logger, OnApplicationShutdown, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnApplicationShutdown,
+  Inject,
+} from '@nestjs/common';
 import { join } from 'path';
+import fs from 'fs';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidV4 } from 'uuid';
 import { imageSize } from 'image-size';
 
 import { IImageRepository } from '../port/image-repository.port';
 import { IObjectStoragePort } from '../port/object-storage.port';
-import { IMAGE_REPOSITORY, OBJECT_STORAGE_PORT } from '../port/injection-tokens';
-import { deleteFile, sleep } from '../../pkg/common/helpers';
+import {
+  IMAGE_REPOSITORY,
+  OBJECT_STORAGE_PORT,
+} from '../port/injection-tokens';
+import { deleteFile } from '../../pkg/common/helpers';
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 import { Exception, EXCEPTIONS } from '../../pkg/common/exceptions';
 import {
@@ -45,8 +56,10 @@ export class ImageService implements OnApplicationShutdown {
   private tempPath: string;
   private s3Config: AwsS3Config;
   constructor(
-    @Inject(IMAGE_REPOSITORY) private readonly imageRepository: IImageRepository,
-    @Inject(OBJECT_STORAGE_PORT) private readonly storagePort: IObjectStoragePort,
+    @Inject(IMAGE_REPOSITORY)
+    private readonly imageRepository: IImageRepository,
+    @Inject(OBJECT_STORAGE_PORT)
+    private readonly storagePort: IObjectStoragePort,
     private configService: ConfigService,
   ) {
     this.imageProxyUrl = this.configService.get<string>('imageProxyUrl');
@@ -84,11 +97,7 @@ export class ImageService implements OnApplicationShutdown {
     );
 
     await this.bindUrlAndSrcAndErrorMessage(image);
-    if (process.env.NODE_ENV == 'development') {
-      return { presignedUrl, presignedPost, ...image };
-    } else {
-      return { presignedPost, ...image };
-    }
+    return { presignedUrl, presignedPost, ...image };
   }
 
   /**
@@ -112,6 +121,25 @@ export class ImageService implements OnApplicationShutdown {
     return image;
   }
 
+  async upload(
+    userId: string,
+    id: string,
+    file: Express.Multer.File,
+  ): Promise<ImageDto> {
+    const image = await this.imageRepository.getById(id);
+    if (!image) {
+      throw new Exception(EXCEPTIONS.IMAGE.NOT_FOUND);
+    }
+
+    const imagePath = new ImagePath(image.resource, image.id, false);
+    const key = imagePath.getOriginPath();
+
+    await this.storagePort.uploadImageToS3(file.path, key);
+    await this.processImage(this.s3Config.userUploadImagesBucket, key);
+
+    return this.imageRepository.getById(id);
+  }
+
   async getByIds(ids: string[], userId?: string) {
     const images = await this.imageRepository.getByIds({ userId, ids });
     for (const image of images) {
@@ -127,9 +155,7 @@ export class ImageService implements OnApplicationShutdown {
       if (!path) {
         path = imagePath.getOriginPath();
       }
-      const url = await this.storagePort.getDownloadImagePresignedUrl(
-        path,
-      );
+      const url = await this.storagePort.getDownloadImagePresignedUrl(path);
       return url;
     }
 
@@ -339,10 +365,7 @@ export class ImageService implements OnApplicationShutdown {
         // Check after resize to reduce latency, resize tool has config limit
         const originImageTempPath = join(this.tempPath, uuidV4());
         try {
-          await this.storagePort.download(
-            originPath,
-            originImageTempPath,
-          );
+          await this.storagePort.download(originPath, originImageTempPath);
           const imageMetadata = await getImageMetadata(originImageTempPath);
           imageMetadata.validate();
         } catch (validateError) {
@@ -355,7 +378,7 @@ export class ImageService implements OnApplicationShutdown {
       await this.storagePort.upload(fileTempPath, hqPath, {
         ContentType: DEFAULT_MIMETYPE,
       });
-      const dimensions = imageSize(fileTempPath);
+      const dimensions = imageSize(fs.readFileSync(fileTempPath));
       deleteFile(fileTempPath);
       return { width: dimensions.width, height: dimensions.height };
     } catch (error) {

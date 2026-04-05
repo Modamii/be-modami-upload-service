@@ -7,9 +7,15 @@ import {
   ParseUUIDPipe,
   Version,
   Post,
+  Put,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
 import {
   ApiBody,
+  ApiConsumes,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -21,7 +27,7 @@ import {
   ApiBadRequestResponse,
 } from '@nestjs/swagger';
 
-import { AuthUser, PRIVATE_OPS_PATH } from '../../../pkg/auth';
+import { AuthUser } from '../../../pkg/auth';
 import { BaseController } from '../../../pkg/common/base';
 import { ROUTES } from 'src/pkg/common/constants';
 import { UserDto } from 'src/pkg/auth/dto';
@@ -32,11 +38,14 @@ import {
   GetImageQueryDto,
   ImageDto,
 } from '../../domain/image.domain';
+import { UploadImageDto } from '../../dto/upload.dto';
+import { getUploadTempPath } from '../../../pkg/common/helpers';
+import { MAX_IMAGE_SIZE_IN_MB } from '../../domain/image.constant';
 
 @ApiSecurity('authorization')
 @ApiTags('Images')
 @ApiUnauthorizedResponse({ description: 'Missing or invalid authorization token' })
-@Controller(['images', `${PRIVATE_OPS_PATH}/images`])
+@Controller('images')
 export class ImagesPublicController extends BaseController {
   constructor(private readonly imageService: ImageService) {
     super();
@@ -145,5 +154,49 @@ export class ImagesPublicController extends BaseController {
     return this.expose(ImageDto, files, {
       groups: ['get'],
     });
+  }
+
+  @ApiOperation({
+    summary: 'Upload image file (server-side)',
+    description:
+      'Upload an image file directly via multipart/form-data. ' +
+      'The server uploads it to MinIO and triggers processing immediately. ' +
+      'Use this endpoint to test the full upload flow via Swagger instead of using the presigned URL/POST.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'UUID of the image record (obtained from POST /images)',
+    type: 'string',
+    format: 'uuid',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: UploadImageDto })
+  @ApiOkResponse({ description: 'Image uploaded and processed', type: ImageDto })
+  @ApiBadRequestResponse({ description: 'File exceeds size limit or invalid format' })
+  @ApiNotFoundResponse({ description: 'Image record not found' })
+  @Put(ROUTES.IMAGE.UPLOAD.PATH)
+  @Version(ROUTES.IMAGE.UPLOAD.VERSIONS)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: MAX_IMAGE_SIZE_IN_MB * 1024 * 1024 },
+      storage: diskStorage({
+        destination: getUploadTempPath(),
+        filename: (req, _file, cb) => {
+          const rx =
+            /images\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/g;
+          const match = rx.exec(req.url);
+          const id = (match?.[1] ?? req.params.id) as string;
+          cb(null, id);
+        },
+      }),
+    }),
+  )
+  async upload(
+    @Param('id', ParseUUIDPipe) id: string,
+    @UploadedFile() file: Express.Multer.File,
+    @AuthUser() user: UserDto,
+  ) {
+    const image = await this.imageService.upload(user.id, id, file);
+    return this.expose(ImageDto, image, { groups: ['get'] });
   }
 }

@@ -23,11 +23,34 @@ export class AuthService {
     const user = this.classTransformer.plainToInstance(UserDto, {
       email: payload['email'],
       username: payload['cognito:username'],
-      id: payload['custom:user_uuid'],
-      // staffRole: payload['custom:bein_staff_role'],
+      // Cognito uses custom:user_uuid; Keycloak/OIDC uses sub
+      id: payload['custom:user_uuid'] || payload['sub'],
     });
 
     return user;
+  }
+
+  private async getJwksUrl(decodedJwt: jwt.Jwt): Promise<string> {
+    const payload = decodedJwt.payload as Record<string, any>;
+    const issuer: string = payload['iss'] ?? '';
+
+    // Cognito issuer: https://cognito-idp.{region}.amazonaws.com/{poolId}
+    if (issuer.includes('cognito-idp') || issuer.includes('amazoncognito')) {
+      const cognitoConfig = this.configService.get<ICognitoConfig>('cognito');
+      return `https://cognito-idp.${cognitoConfig.region}.amazonaws.com/${cognitoConfig.poolId}/.well-known/jwks.json`;
+    }
+
+    // Generic OIDC (Keycloak, Auth0, etc.): {issuer}/.well-known/openid-configuration
+    const discoveryUrl = `${issuer.replace(/\/$/, '')}/.well-known/openid-configuration`;
+    try {
+      const discovery = await lastValueFrom(
+        this.httpService.get(discoveryUrl),
+      );
+      return discovery['data']['jwks_uri'];
+    } catch {
+      // Fallback: Keycloak JWKS path
+      return `${issuer.replace(/\/$/, '')}/protocol/openid-connect/certs`;
+    }
   }
 
   public async login(token: string): Promise<UserDto> {
@@ -38,8 +61,7 @@ export class AuthService {
       });
     }
 
-    const cognitoConfig = this.configService.get<ICognitoConfig>('cognito');
-    const tokenValidationUrl = `https://cognito-idp.${cognitoConfig.region}.amazonaws.com/${cognitoConfig.poolId}/.well-known/jwks.json`;
+    const tokenValidationUrl = await this.getJwksUrl(decodedJwt);
     const response = await lastValueFrom(
       this.httpService.get(tokenValidationUrl),
     );

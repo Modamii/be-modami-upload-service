@@ -9,7 +9,20 @@
       "Read(//mnt/c/Users/phongnc6/Personal/sources/Another/modami-v2/be-modami-upload-service/=== src/pkg/**)",
       "Read(//mnt/c/Users/phongnc6/Personal/sources/Another/modami-v2/be-modami-upload-service/=== src/internal/**)",
       "Read(//mnt/c/Users/phongnc6/Personal/sources/Another/modami-v2/be-modami-upload-service/=== src/commander/**)",
-      "Read(//mnt/c/Users/phongnc6/Personal/sources/Another/modami-v2/be-modami-upload-service/**)"
+      "Read(//mnt/c/Users/phongnc6/Personal/sources/Another/modami-v2/be-modami-upload-service/**)",
+      "Bash(yarn run:*)",
+      "Bash(grep:*)",
+      "Bash(curl:*)",
+      "Bash(npx sequelize-cli:*)",
+      "Bash(yarn build:*)",
+      "Read(//private/tmp/uploads/**)",
+      "Bash(mkdir -p /tmp/uploads)",
+      "Bash(mc alias:*)",
+      "Bash(mc ls:*)",
+      "Bash(AWS_ACCESS_KEY_ID=minioadmin AWS_SECRET_ACCESS_KEY=minioadmin123 \\\\\n  aws s3 ls s3:// --endpoint-url http://localhost:9000 --region us-east-1 2>&1)",
+      "Bash(AWS_ACCESS_KEY_ID=minioadmin AWS_SECRET_ACCESS_KEY=minioadmin123 \\\\\n  aws s3api list-buckets --endpoint-url http://localhost:9000 --region us-east-1 2>&1)",
+      "Bash(for bucket:*)",
+      "Bash(AWS_ACCESS_KEY_ID=minioadmin AWS_SECRET_ACCESS_KEY=minioadmin123 \\\\\n  aws s3 cp /usr/share/cups/ipptool/gray.jpg s3://images/test-upload.jpg \\\\\n  --endpoint-url http://localhost:9000 --region us-east-1 2>&1)"
     ]
   }
 }

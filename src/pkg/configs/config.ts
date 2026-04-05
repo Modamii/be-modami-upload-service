@@ -7,7 +7,7 @@ export default (): Config => ({
     env: process.env.NODE_ENV || 'development',
   },
   database: {
-    connection: process.env.POSTGRES_CONNECTION,
+    connection: process.env.POSTGRES_CONNECTION || 'postgres',
     host: process.env.POSTGRES_HOST,
     port: parseInt(process.env.POSTGRES_PORT),
     database: process.env.POSTGRES_DB,
@@ -40,11 +40,17 @@ export default (): Config => ({
     username: process.env.KAFKA_SASL_USERNAME,
     password: process.env.KAFKA_SASL_PASSWORD,
     env: process.env.KAFKA_ENV,
-    ssl: {
-      cert: process.env.KAFKA_SSL_CERT.split(`\\n`).join('\n'),
-      key: process.env.KAFKA_SSL_KEY.split(`\\n`).join('\n'),
-      ca: process.env.KAFKA_SSL_CA.split(`\\n`).join('\n'),
-    },
+    ssl: process.env.KAFKA_SSL_CERT
+      ? {
+          cert: process.env.KAFKA_SSL_CERT.split(`\\n`).join('\n'),
+          key: process.env.KAFKA_SSL_KEY.split(`\\n`).join('\n'),
+          ca: process.env.KAFKA_SSL_CA.split(`\\n`).join('\n'),
+        }
+      : {
+          cert: '',
+          key: '',
+          ca: '',
+        },
   },
   vimeo: {
     clientID: process.env.VIMEO_CLIENT_ID,
@@ -89,6 +95,7 @@ export default (): Config => ({
     process.env.HLS_PREFIX_URL +
     (process.env.HLS_PREFIX_URL.slice(-1) != '/' ? '/' : ''),
   sqs: {
+    enabled: process.env.SQS_ENABLED === 'true',
     resizeImageQueueUrl: process.env.AWS_S3_SQS_RESIZE_IMAGE_QUEUE_URL,
     videoQueueUrl: process.env.AWS_S3_SQS_VIDEO_QUEUE_URL,
   },

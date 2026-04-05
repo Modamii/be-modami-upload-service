@@ -2,14 +2,14 @@
 require('dotenv').config();
 
 module.exports = {
-  username: process.env.POSTGRES_IMAGE_USER,
-  password: process.env.POSTGRES_IMAGE_PASSWORD,
-  database: process.env.POSTGRES_IMAGE_DB,
-  host: process.env.POSTGRES_IMAGE_HOST,
-  port: process.env.POSTGRES_IMAGE_PORT,
-  dialect: process.env.POSTGRES_IMAGE_CONNECTION,
+  username: process.env.POSTGRES_USER,
+  password: process.env.POSTGRES_PASSWORD,
+  database: process.env.POSTGRES_DB,
+  host: process.env.POSTGRES_HOST,
+  port: process.env.POSTGRES_PORT,
+  dialect: process.env.POSTGRES_CONNECTION || 'postgres',
   define: {
-    schema: process.env.POSTGRES_IMAGE_SCHEMA,
+    schema: process.env.POSTGRES_SCHEMA || 'public',
   },
   native: true,
 };

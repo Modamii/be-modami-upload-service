@@ -54,11 +54,12 @@ export interface KafkaConfig {
   password: string;
   consumerGroupId: string;
   env: string;
-  ssl: {
-    cert: string;
-    key: string;
-    ca: string;
-  };
+  ssl:
+    {
+        cert: string;
+        key: string;
+        ca: string;
+      };
 }
 
 export interface vimeoConfig {
@@ -93,6 +94,7 @@ export interface IRedisConfig {
 }
 
 export interface ISQSConfig {
+  enabled: boolean;
   resizeImageQueueUrl: string;
   videoQueueUrl: string;
 }

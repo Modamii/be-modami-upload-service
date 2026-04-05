@@ -29,6 +29,16 @@ import { DatabaseConfig } from '../configs/config.interface';
           },
           pool: db.pool,
           logging: false,
+          // Auto-create schema and tables on startup (safe: never drops data)
+          hooks: {
+            afterConnect: async (connection: any) => {
+              const schema = db.schema || 'public';
+              await connection.query(
+                `CREATE SCHEMA IF NOT EXISTS "${schema}";`,
+              );
+            },
+          },
+          sync: { force: false, alter: false },
           retry: {
             max: 300,
             match: [

@@ -16,6 +16,13 @@ import { FileConsumer } from './file.consumer';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         const sqsConfig = configService.get<ISQSConfig>('sqs');
+
+        // SQS is only active when SQS_ENABLED=true in .env
+        // Set SQS_ENABLED=true when deploying with AWS SQS for image/video events
+        if (!sqsConfig.enabled) {
+          return { consumers: [], producers: [] };
+        }
+
         return {
           consumers: [
             {

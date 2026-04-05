@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import {
@@ -47,9 +47,9 @@ export class AppModule {
   public configure(consumer: MiddlewareConsumer): void {
     consumer
       .apply(ApiVersioningMiddleware)
-      .forRoutes('*')
+      .forRoutes({ path: '*path', method: RequestMethod.ALL })
       .apply(AuthMiddleware)
       .exclude(...WHITELIST_PATH)
-      .forRoutes('*');
+      .forRoutes({ path: '*path', method: RequestMethod.ALL });
   }
 }

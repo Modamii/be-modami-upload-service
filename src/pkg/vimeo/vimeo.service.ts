@@ -10,7 +10,7 @@ const VIDEO_QUALITIES = [1080, 720, 360, 240];
 @Injectable()
 export class VimeoService {
   private logger: Logger;
-  private objIntervalCheckStatus: { [key: string]: NodeJS.Timer } = {};
+  private objIntervalCheckStatus: { [key: string]: ReturnType<typeof setInterval> } = {};
   private objTranscodeCompleteTime: { [key: string]: Date } = {};
   private client: Vimeo;
   private cbTranscodeDone: (videoId: string, vimeoId: string) => Promise<void>;

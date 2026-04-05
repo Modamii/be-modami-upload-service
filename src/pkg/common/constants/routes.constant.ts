@@ -48,6 +48,10 @@ export const ROUTES = {
       PATH: 'ids',
       VERSIONS: AppHelper.getVersionsSupported(),
     },
+    UPLOAD: {
+      PATH: ':id',
+      VERSIONS: AppHelper.getVersionsSupported(),
+    },
   },
   FILE: {
     CREATE: {

@@ -20,16 +20,14 @@ export class KafkaGateway {
         client: {
           clientId: kafkaConfig.clientID,
           brokers: kafkaConfig.brokers,
-          ssl: {
-            cert: kafkaConfig.ssl.cert,
-            key: kafkaConfig.ssl.key,
-            ca: kafkaConfig.ssl.ca,
-          },
-          sasl: {
-            mechanism: kafkaConfig.mechanism as any,
-            username: kafkaConfig.username,
-            password: kafkaConfig.password,
-          },
+          ssl: kafkaConfig.ssl.cert ? kafkaConfig.ssl : false,
+          sasl: kafkaConfig.username
+            ? {
+                mechanism: kafkaConfig.mechanism as any,
+                username: kafkaConfig.username,
+                password: kafkaConfig.password,
+              }
+            : undefined,
           logLevel: logLevel.INFO,
         },
       },

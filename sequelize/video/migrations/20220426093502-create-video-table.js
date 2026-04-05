@@ -1,6 +1,6 @@
 'use strict';
 
-const schemaName = process.env.POSTGRES_VIDEO_SCHEMA;
+const schemaName = process.env.POSTGRES_SCHEMA || 'public';
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable(

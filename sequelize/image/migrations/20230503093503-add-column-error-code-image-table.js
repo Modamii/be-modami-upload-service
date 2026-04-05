@@ -1,6 +1,6 @@
 'use strict';
 
-const schema = process.env.POSTGRES_IMAGE_SCHEMA;
+const schema = process.env.POSTGRES_SCHEMA || 'public';
 const tableName = 'image';
 
 module.exports = {

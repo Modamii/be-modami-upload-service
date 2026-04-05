@@ -21,7 +21,6 @@ import { KafkaGateway } from './pkg/kafka';
 import { HttpExceptionFilter } from './pkg/common/filters';
 import { LoggerProvider } from './pkg/logger/logger.provider';
 import { HandleResponseInterceptor } from './pkg/common/interceptors';
-import { VideoService } from './internal/service/video.service';
 
 import { ISwaggerConfig, NestConfig } from './pkg/configs/config.interface';
 import { KafkaHealthBootstrap } from './pkg/health/kafka-health.bootstrap';
@@ -46,7 +45,7 @@ async function setupSwagger(app, configService: ConfigService) {
       .setDescription(swaggerConfig.description)
       .setVersion(swaggerConfig.version);
 
-    if (process.env.NODE_ENV == 'development') {
+    if (['development', 'local'].includes(process.env.NODE_ENV)) {
       documentBuilder.addGlobalParameters({
         in: 'header',
         name: 'user',
@@ -105,16 +104,14 @@ async function bootstrap() {
     bufferLogs: true,
   });
   const configService = app.get(ConfigService);
-  const videoService = app.get(VideoService);
 
+  await setupGlobal(app, configService);
   await setupSwagger(app, configService);
   await setupKafka(app, configService);
-  await setupGlobal(app, configService);
 
   const nestConfig = configService.get<NestConfig>('nest');
   await app.listen(nestConfig.port);
-  Logger.log('🚀🚀🚀 Listening :' + nestConfig.port);
-  videoService.initIntervalCheckProcessing();
+  Logger.log('Upload service listening :' + nestConfig.port);
 }
 
 bootstrap();

@@ -18,14 +18,14 @@ on:
       service_name:
         required: false
         type: string
-        default: upload-manage # Warning: Must to update this if you dont want override other squad docker image
+        default: upload-service
       work_space:
         required: false
         type: string
         default: ""
 
 jobs:
-  build_service_upload_manage:
+  build_service_upload_service:
     name: Build Service
     if: ${{ !cancelled() }}
     uses: ""/modami-github-workflow/.github/workflows/build_common_service_v2.yaml@master
@@ -36,5 +36,5 @@ jobs:
       work_place: ${{ inputs.work_space }}
       service_name: ${{ inputs.service_name }}
       service_env: ${{ inputs.service_env }}
-      service_image: "docker-hub/beingroup/${{ inputs.service_env }}-modami-upload-manage-service"
+      service_image: "docker-hub/beingroup/${{ inputs.service_env }}-modami-upload-service"
     secrets: inherit

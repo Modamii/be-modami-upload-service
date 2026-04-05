@@ -20,7 +20,7 @@ import {
   MetadataHelper,
 } from '../../pkg/common/helpers';
 import { Exception, EXCEPTIONS } from '../../pkg/common/exceptions';
-import { sleep } from '../../pkg/common/helpers/test.helper';
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 import { randomIntFromInterval } from '../../pkg/common/helpers/general.helper';
 
 import {

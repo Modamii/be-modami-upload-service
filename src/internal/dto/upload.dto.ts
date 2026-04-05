@@ -44,6 +44,12 @@ export class UploadFileDto {
   public uploadType: FileUploadType;
 }
 
+export class UploadImageDto {
+  @ApiProperty({ type: 'string', format: 'binary' })
+  @Allow()
+  public file: any;
+}
+
 export const VideoStoragePrefix = {
   [VideoUploadType.postVideo]: 'post/original',
   PostVariants: 'post/variants',
