@@ -63,7 +63,7 @@ export default (): Config => ({
   },
   swagger: {
     enabled: process.env.SWAGGER_ENABLE === 'true',
-    title: 'Upload Management Service',
+    title: 'Modami Upload Service API',
     description:
       'REST API for managing file, image, and video uploads.\n\n' +
       '**Storage backend:** MinIO (S3-compatible)\n\n' +
@@ -74,7 +74,7 @@ export default (): Config => ({
       '**Authentication:** Pass a JWT in the `authorization` header.\n\n' +
       '**API versioning:** Set `x-version-id` header (e.g. `1.0`, `2.0`).',
     version: '1.0',
-    path: 'api',
+    path: 'swagger',
     apiBasePath: process.env.SWAGGER_API_BASE_PATH || '',
   },
   redis: {
