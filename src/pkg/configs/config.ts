@@ -74,8 +74,8 @@ export default (): Config => ({
       '**Authentication:** Pass a JWT in the `authorization` header.\n\n' +
       '**API versioning:** Set `x-version-id` header (e.g. `1.0`, `2.0`).',
     version: '1.0',
-    path: 'swagger',
-    apiBasePath: process.env.SWAGGER_API_BASE_PATH || '',
+    path: '/swagger',
+    apiBasePath: process.env.SWAGGER_API_BASE_PATH || '/v1/upload-services',
   },
   redis: {
     db: 0,

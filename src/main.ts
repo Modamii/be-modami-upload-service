@@ -105,6 +105,7 @@ async function bootstrap() {
   });
   const configService = app.get(ConfigService);
 
+  app.setGlobalPrefix('v1/upload-services');
   await setupGlobal(app, configService);
   await setupSwagger(app, configService);
   await setupKafka(app, configService);
