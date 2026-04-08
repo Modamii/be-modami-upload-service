@@ -1,4 +1,4 @@
-FROM node:20.15.1 AS development
+FROM node:20.19.0 AS development
 
 WORKDIR /usr/src/app
 
@@ -23,7 +23,7 @@ RUN export NODE_OPTIONS="--max-old-space-size=5120"
 RUN yarn build
 
 
-FROM node:20.15.1 as production
+FROM node:20.19.0 as production
 
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
