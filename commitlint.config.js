@@ -39,8 +39,8 @@ module.exports = {
             return [true, ''];
           }
           return [
-            /^(BEIN-\d+)\s(.+)$/.test(subject),
-            `Commit message must include a modami task id and description: "<bein_task_id> <description>". Example: feat: BEIN-13110 add husky\nSee more: https://app.clickup.com/3649385/v/dc/3fbv9-27427/3fbv9-79965`,
+            /^(modami-\d+)\s(.+)$/.test(subject),
+            `Commit message must include a modami task id and description: "<modami_task_id> <description>". Example: feat: modami-13110 add husky\nSee more: https://app.clickup.com/3649385/v/dc/3fbv9-27427/3fbv9-79965`,
           ];
         },
         'scope-enum': ({ scope }) => {

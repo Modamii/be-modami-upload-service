@@ -25,7 +25,7 @@ Create `~/.aws/config`
 
 ```config
 [default]
-sso_start_url = https://beingroup.awsapps.com/start
+sso_start_url = https://modamigroup.awsapps.com/start
 sso_region = ap-southeast-1
 sso_account_id = 296763675441
 sso_role_name = modami-be-media-moderator
@@ -69,7 +69,7 @@ $ yarn run test:cov
 
 ## Note
 ### Test start processing video
-public event to `bein_stream.video_post_has_been_created`
+public event to `modami_stream.video_post_has_been_created`
 ```
 {
     "postId": "test",
@@ -80,8 +80,8 @@ public event to `bein_stream.video_post_has_been_created`
 ## Run script
 Migrate rename bucket
 ```
-node scripts/migrate-bucket-s3/migrate-files.js -bucket=bein-user-upload-files-develop
-node scripts/migrate-bucket-s3/migrate-videos.js -bucket=bein-user-upload-videos-develop
+node scripts/migrate-bucket-s3/migrate-files.js -bucket=modami-user-upload-files-develop
+node scripts/migrate-bucket-s3/migrate-videos.js -bucket=modami-user-upload-videos-develop
 ```
 
 

@@ -32,7 +32,7 @@ export class PostConsumer {
 
   @EventPattern(
     KafkaUtility.getTopicFromEvent(
-      EVENTS.BEIN_STREAM.VIDEO_POST_HAS_BEEN_CREATED,
+      EVENTS.modami_STREAM.VIDEO_POST_HAS_BEEN_CREATED,
       process.env.KAFKA_ENV,
     ),
   )
@@ -42,7 +42,7 @@ export class PostConsumer {
     try {
       this.logger.log({
         message: 'receive event',
-        event: EVENTS.BEIN_STREAM.VIDEO_POST_HAS_BEEN_CREATED,
+        event: EVENTS.modami_STREAM.VIDEO_POST_HAS_BEEN_CREATED,
         data: msgContent,
       });
       await this.handleVideoPostHasBeenCreated(msgContent);
@@ -53,7 +53,7 @@ export class PostConsumer {
 
   @EventPattern(
     KafkaUtility.getTopicFromEvent(
-      EVENTS.BEIN_STREAM.RESYNC_VIDEO_POST_HAS_BEEN_CREATED,
+      EVENTS.modami_STREAM.RESYNC_VIDEO_POST_HAS_BEEN_CREATED,
       process.env.KAFKA_ENV,
     ),
   )
@@ -63,7 +63,7 @@ export class PostConsumer {
     try {
       this.logger.log({
         message: 'receive event',
-        event: EVENTS.BEIN_STREAM.RESYNC_VIDEO_POST_HAS_BEEN_CREATED,
+        event: EVENTS.modami_STREAM.RESYNC_VIDEO_POST_HAS_BEEN_CREATED,
         data: msgContent,
       });
       await this.handleVideoPostHasBeenCreated(msgContent);

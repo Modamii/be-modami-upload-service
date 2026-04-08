@@ -1,0 +1,331 @@
+version: 2.1
+parameters:
+  run_workflow_itn:
+    default: true
+    type: boolean
+  run_workflow_dev:
+    default: true
+    type: boolean
+  run_workflow_stg:
+    default: true
+    type: boolean
+  run_workflow_rel:
+    default: true
+    type: boolean
+  run_workflow_pro:
+    default: true
+    type: boolean
+
+jobs:
+  itn:
+    docker:
+      - image: cimg/base:2022.09
+    working_directory: ~/app
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.12
+          docker_layer_caching: true
+      - run:
+          name: Build Docker image
+          command: |
+            docker build --no-cache -t $ITN_IMAGE_NAME:latest .
+      - run:
+          name: Push Docker Image
+          command: |
+            echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+            docker tag $ITN_IMAGE_NAME:latest $ITN_IMAGE_NAME:$CIRCLE_SHA1
+            docker push $ITN_IMAGE_NAME:latest
+            docker push $ITN_IMAGE_NAME:$CIRCLE_SHA1
+      - run:
+          name: Install envsubst
+          command: |
+            sudo apt-get update && sudo apt-get -y install gettext-base
+      - run:
+          name: Update image version
+          command: |
+            HEAD=$(git rev-parse --short HEAD)
+            GIT_COMMIT_MESSAGE=$(git log --format=%B -n 1 $CIRCLE_SHA1)
+            git clone https://cicd-modami:$CIRCLECI_ARGOCD_TOKEN@bitbucket.org/$BITBUCKET_WORKPLACE/modami-kube.git 
+            cd modami-kube
+            set -e
+            COMMIT_SHA1=$CIRCLE_SHA1
+            export COMMIT_SHA1=$COMMIT_SHA1
+            envsubst <modami/services/$SERVICE/$ITN_ENVIRONMENT/version.patch.yaml >modami/services/$SERVICE/$ITN_ENVIRONMENT/version.yaml.out
+            mv modami/services/$SERVICE/$ITN_ENVIRONMENT/version.yaml.out modami/services/$SERVICE/$ITN_ENVIRONMENT/version.yaml
+            git config --global user.email "cicd@.vn"
+            git config --global user.name "CICD"
+            git add -A
+            git commit -m "Commit: $HEAD  Build: $CIRCLE_BUILD_NUM  Message: $GIT_COMMIT_MESSAGE"
+            git pull
+            git push
+
+            git checkout refactor/restructure
+            set -e
+            COMMIT_SHA1=$CIRCLE_SHA1
+            export COMMIT_SHA1=$COMMIT_SHA1
+            envsubst <modami/services/$SERVICE/$ITN_ENVIRONMENT/version.patch.yaml >modami/services/$SERVICE/$ITN_ENVIRONMENT/version.yaml.out
+            mv modami/services/$SERVICE/$ITN_ENVIRONMENT/version.yaml.out modami/services/$SERVICE/$ITN_ENVIRONMENT/version.yaml
+            git config --global user.email "cicd@.vn"
+            git config --global user.name "CICD"
+            git add -A
+            git commit -m "Commit: $HEAD  Build: $CIRCLE_BUILD_NUM  Message: $GIT_COMMIT_MESSAGE"
+            git pull
+            git push
+  dev:
+    docker:
+      - image: cimg/base:2022.09
+    working_directory: ~/app
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.12
+          docker_layer_caching: true
+      - run:
+          name: Build Docker image
+          command: |
+            docker build -t $DEV_IMAGE_NAME:latest .
+      - run:
+          name: Push Docker Image
+          command: |
+            echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+            docker tag $DEV_IMAGE_NAME:latest $DEV_IMAGE_NAME:$CIRCLE_SHA1
+            docker push $DEV_IMAGE_NAME:latest
+            docker push $DEV_IMAGE_NAME:$CIRCLE_SHA1
+      - run:
+          name: Install envsubst
+          command: |
+            sudo apt-get update && sudo apt-get -y install gettext-base
+      - run:
+          name: Update image version
+          command: |
+            HEAD=$(git rev-parse --short HEAD)
+            GIT_COMMIT_MESSAGE=$(git log --format=%B -n 1 $CIRCLE_SHA1)
+            git clone https://cicd-modami:$CIRCLECI_ARGOCD_TOKEN@bitbucket.org/$BITBUCKET_WORKPLACE/modami-kube.git 
+            cd modami-kube
+            set -e
+            COMMIT_SHA1=$CIRCLE_SHA1
+            export COMMIT_SHA1=$COMMIT_SHA1
+            envsubst <modami/services/$SERVICE/$DEV_ENVIRONMENT/version.patch.yaml >modami/services/$SERVICE/$DEV_ENVIRONMENT/version.yaml.out
+            mv modami/services/$SERVICE/$DEV_ENVIRONMENT/version.yaml.out modami/services/$SERVICE/$DEV_ENVIRONMENT/version.yaml
+            git config --global user.email "cicd@.vn"
+            git config --global user.name "CICD"
+            git add -A
+            git commit -m "Commit: $HEAD  Build: $CIRCLE_BUILD_NUM  Message: $GIT_COMMIT_MESSAGE"
+            git pull
+            git push
+
+            git checkout refactor/restructure
+            set -e
+            COMMIT_SHA1=$CIRCLE_SHA1
+            export COMMIT_SHA1=$COMMIT_SHA1
+            envsubst <modami/services/$SERVICE/$DEV_ENVIRONMENT/version.patch.yaml >modami/services/$SERVICE/$DEV_ENVIRONMENT/version.yaml.out
+            mv modami/services/$SERVICE/$DEV_ENVIRONMENT/version.yaml.out modami/services/$SERVICE/$DEV_ENVIRONMENT/version.yaml
+            git config --global user.email "cicd@.vn"
+            git config --global user.name "CICD"
+            git add -A
+            git commit -m "Commit: $HEAD  Build: $CIRCLE_BUILD_NUM  Message: $GIT_COMMIT_MESSAGE"
+            git pull
+            git push
+  stg:
+    docker:
+      - image: cimg/base:2022.09
+    working_directory: ~/app
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.12
+          docker_layer_caching: true
+      - run:
+          name: Build Docker image
+          command: |
+            docker build -t $STG_IMAGE_NAME:latest .
+      - run:
+          name: Push Docker Image
+          command: |
+            echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+            docker tag $STG_IMAGE_NAME:latest $STG_IMAGE_NAME:$CIRCLE_SHA1
+            docker push $STG_IMAGE_NAME:latest
+            docker push $STG_IMAGE_NAME:$CIRCLE_SHA1
+      - run:
+          name: Install envsubst
+          command: |
+            sudo apt-get update && sudo apt-get -y install gettext-base
+      - run:
+          name: Update image version
+          command: |
+            HEAD=$(git rev-parse --short HEAD)
+            GIT_COMMIT_MESSAGE=$(git log --format=%B -n 1 $CIRCLE_SHA1)
+            git clone https://cicd-modami:$CIRCLECI_ARGOCD_TOKEN@bitbucket.org/$BITBUCKET_WORKPLACE/modami-kube.git 
+            cd modami-kube
+            set -e
+            COMMIT_SHA1=$CIRCLE_SHA1
+            export COMMIT_SHA1=$COMMIT_SHA1
+            envsubst <modami/services/$SERVICE/$STG_ENVIRONMENT/version.patch.yaml >modami/services/$SERVICE/$STG_ENVIRONMENT/version.yaml.out
+            mv modami/services/$SERVICE/$STG_ENVIRONMENT/version.yaml.out modami/services/$SERVICE/$STG_ENVIRONMENT/version.yaml
+            git config --global user.email "cicd@.vn"
+            git config --global user.name "CICD"
+            git add -A
+            git commit -m "Commit: $HEAD  Build: $CIRCLE_BUILD_NUM  Message: $GIT_COMMIT_MESSAGE"
+            git pull
+            git push
+
+            git checkout refactor/restructure
+            set -e
+            COMMIT_SHA1=$CIRCLE_SHA1
+            export COMMIT_SHA1=$COMMIT_SHA1
+            envsubst <modami/services/$SERVICE/$STG_ENVIRONMENT/version.patch.yaml >modami/services/$SERVICE/$STG_ENVIRONMENT/version.yaml.out
+            mv modami/services/$SERVICE/$STG_ENVIRONMENT/version.yaml.out modami/services/$SERVICE/$STG_ENVIRONMENT/version.yaml
+            git config --global user.email "cicd@.vn"
+            git config --global user.name "CICD"
+            git add -A
+            git commit -m "Commit: $HEAD  Build: $CIRCLE_BUILD_NUM  Message: $GIT_COMMIT_MESSAGE"
+            git pull
+            git push
+  rel:
+    docker:
+      - image: cimg/base:2022.09
+    working_directory: ~/app
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.12
+          docker_layer_caching: true
+      - run:
+          name: Build Docker image
+          command: |
+            docker build -t $REL_IMAGE_NAME:latest .
+      - run:
+          name: Push Docker Image
+          command: |
+            echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+            docker tag $REL_IMAGE_NAME:latest $REL_IMAGE_NAME:$CIRCLE_SHA1
+            docker push $REL_IMAGE_NAME:latest
+            docker push $REL_IMAGE_NAME:$CIRCLE_SHA1
+      - run:
+          name: Install envsubst
+          command: |
+            sudo apt-get update && sudo apt-get -y install gettext-base
+      - run:
+          name: Update image version
+          command: |
+            HEAD=$(git rev-parse --short HEAD)
+            GIT_COMMIT_MESSAGE=$(git log --format=%B -n 1 $CIRCLE_SHA1)
+            git clone https://cicd-modami:$CIRCLECI_ARGOCD_TOKEN@bitbucket.org/$BITBUCKET_WORKPLACE/modami-kube.git 
+            cd modami-kube
+            set -e
+            COMMIT_SHA1=$CIRCLE_SHA1
+            export COMMIT_SHA1=$COMMIT_SHA1
+            envsubst <modami/services/$SERVICE/$REL_ENVIRONMENT/version.patch.yaml >modami/services/$SERVICE/$REL_ENVIRONMENT/version.yaml.out
+            mv modami/services/$SERVICE/$REL_ENVIRONMENT/version.yaml.out modami/services/$SERVICE/$REL_ENVIRONMENT/version.yaml
+            git config --global user.email "cicd@.vn"
+            git config --global user.name "CICD"
+            git add -A
+            git commit -m "Commit: $HEAD  Build: $CIRCLE_BUILD_NUM  Message: $GIT_COMMIT_MESSAGE"
+            git pull
+            git push
+
+            git checkout refactor/restructure
+            set -e
+            COMMIT_SHA1=$CIRCLE_SHA1
+            export COMMIT_SHA1=$COMMIT_SHA1
+            envsubst <modami/services/$SERVICE/$REL_ENVIRONMENT/version.patch.yaml >modami/services/$SERVICE/$REL_ENVIRONMENT/version.yaml.out
+            mv modami/services/$SERVICE/$REL_ENVIRONMENT/version.yaml.out modami/services/$SERVICE/$REL_ENVIRONMENT/version.yaml
+            git config --global user.email "cicd@.vn"
+            git config --global user.name "CICD"
+            git add -A
+            git commit -m "Commit: $HEAD  Build: $CIRCLE_BUILD_NUM  Message: $GIT_COMMIT_MESSAGE"
+            git pull
+            git push
+  pro:
+    docker:
+      - image: cimg/base:2022.09
+    working_directory: ~/app
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.12
+          docker_layer_caching: true
+      - run:
+          name: Build Docker image
+          command: |
+            docker build -t $PRO_IMAGE_NAME:latest .
+      - run:
+          name: Push Docker Image
+          command: |
+            echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+            docker tag $PRO_IMAGE_NAME:latest $PRO_IMAGE_NAME:$CIRCLE_SHA1
+            docker push $PRO_IMAGE_NAME:latest
+            docker push $PRO_IMAGE_NAME:$CIRCLE_SHA1
+      - run:
+          name: Install envsubst
+          command: |
+            sudo apt-get update && sudo apt-get -y install gettext-base
+      - run:
+          name: Update image version
+          command: |
+            HEAD=$(git rev-parse --short HEAD)
+            GIT_COMMIT_MESSAGE=$(git log --format=%B -n 1 $CIRCLE_SHA1)
+            git clone https://cicd-modami:$CIRCLECI_ARGOCD_TOKEN@bitbucket.org/$BITBUCKET_WORKPLACE/modami-kube.git 
+            cd modami-kube
+            set -e
+            COMMIT_SHA1=$CIRCLE_SHA1
+            export COMMIT_SHA1=$COMMIT_SHA1
+            envsubst <modami/services/$SERVICE/$PRO_ENVIRONMENT/version.patch.yaml >modami/services/$SERVICE/$PRO_ENVIRONMENT/version.yaml.out
+            mv modami/services/$SERVICE/$PRO_ENVIRONMENT/version.yaml.out modami/services/$SERVICE/$PRO_ENVIRONMENT/version.yaml
+            git config --global user.email "cicd@.vn"
+            git config --global user.name "CICD"
+            git add -A
+            git commit -m "Commit: $HEAD  Build: $CIRCLE_BUILD_NUM  Message: $GIT_COMMIT_MESSAGE"
+            git pull
+            git push
+
+            git checkout refactor/restructure
+            set -e
+            COMMIT_SHA1=$CIRCLE_SHA1
+            export COMMIT_SHA1=$COMMIT_SHA1
+            envsubst <modami/services/$SERVICE/$PRO_ENVIRONMENT/version.patch.yaml >modami/services/$SERVICE/$PRO_ENVIRONMENT/version.yaml.out
+            mv modami/services/$SERVICE/$PRO_ENVIRONMENT/version.yaml.out modami/services/$SERVICE/$PRO_ENVIRONMENT/version.yaml
+            git config --global user.email "cicd@.vn"
+            git config --global user.name "CICD"
+            git add -A
+            git commit -m "Commit: $HEAD  Build: $CIRCLE_BUILD_NUM  Message: $GIT_COMMIT_MESSAGE"
+            git pull
+            git push
+workflows:
+  version: 2
+  # Internal:
+  #   when: << pipeline.parameters.run_workflow_itn >>
+  #   jobs:
+  #     - itn:
+  #         filters:
+  #           branches:
+  #             only: /^internal\-\d*/
+  # Develop:
+  #   when: << pipeline.parameters.run_workflow_dev >>
+  #   jobs:
+  #     - dev:
+  #         filters:
+  #           branches:
+  #             only: develop
+  # Staging:
+  #   when: << pipeline.parameters.run_workflow_stg >>
+  #   jobs:
+  #     - stg:
+  #         filters:
+  #           branches:
+  #             only: staging
+  # Release:
+  #   when: << pipeline.parameters.run_workflow_rel >>
+  #   jobs:
+  #     - rel:
+  #         filters:
+  #           branches:
+  #             only: /^release.*$/
+  # Production:
+  #   when: << pipeline.parameters.run_workflow_pro >>
+  #   jobs:
+  #     - pro:
+  #         filters:
+  #           branches:
+  #             only: master

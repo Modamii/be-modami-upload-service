@@ -6,6 +6,8 @@ COPY package*.json ./
 
 COPY yarn.lock ./
 
+RUN apt-get update && apt-get install -y libpq-dev && rm -rf /var/lib/apt/lists/*
+
 RUN yarn install
 
 RUN yarn add glob@^10.4.5 rimraf@^5.0.9
@@ -31,6 +33,8 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 COPY yarn.lock ./
+
+RUN apt-get update && apt-get install -y libpq-dev && rm -rf /var/lib/apt/lists/*
 
 RUN yarn --production
 

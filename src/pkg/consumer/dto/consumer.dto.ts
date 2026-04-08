@@ -1,4 +1,4 @@
-// BS: Bein stream (Bein feed)
+// BS: modami stream (modami feed)
 export class BSVideoPostHasBeenCreatedDto {
   postId?: string;
   videoIds: string[];

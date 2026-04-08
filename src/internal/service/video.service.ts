@@ -37,7 +37,11 @@ import {
   VideoPropertiesDto,
 } from '../domain/video.domain';
 import { VideoUploadType, VideoStoragePrefix } from '../dto/upload.dto';
-import { ThumbnailHelper, VideoHelper, VideoPath } from '../domain/video.helper';
+import {
+  ThumbnailHelper,
+  VideoHelper,
+  VideoPath,
+} from '../domain/video.helper';
 import { AwsS3Config } from '../../pkg/configs/config.interface';
 
 @Injectable()
@@ -293,7 +297,7 @@ export class VideoService {
       // public event
       if (status != UPLOAD_VIDEO_STATUS.DONE) {
         this.eventProducer.public<VideoProcessingEndDto>(
-          EVENTS.BEIN_UPLOAD.VIDEO_PROCESSING_DONE,
+          EVENTS.modami_UPLOAD.VIDEO_PROCESSING_DONE,
           {
             videoId,
             postId: props?.postId,
@@ -370,7 +374,7 @@ export class VideoService {
       });
       // public event
       this.eventProducer.public<VideoProcessingEndDto>(
-        EVENTS.BEIN_UPLOAD.VIDEO_PROCESSING_DONE,
+        EVENTS.modami_UPLOAD.VIDEO_PROCESSING_DONE,
         {
           videoId: video.id,
           postId: video.props?.postId,
@@ -381,7 +385,7 @@ export class VideoService {
       if (error.customCode == EXCEPTIONS.VIDEO.NOT_FOUND.customCode) {
         // if video_id not found => public event
         this.eventProducer.public<VideoProcessingEndDto>(
-          EVENTS.BEIN_UPLOAD.VIDEO_PROCESSING_DONE,
+          EVENTS.modami_UPLOAD.VIDEO_PROCESSING_DONE,
           {
             videoId: videoId,
             status: UPLOAD_VIDEO_STATUS.ERROR,
@@ -407,7 +411,7 @@ export class VideoService {
       if (video.status == UPLOAD_VIDEO_STATUS.DONE) {
         // republic event
         this.eventProducer.public<VideoProcessingEndDto>(
-          EVENTS.BEIN_UPLOAD.VIDEO_PROCESSING_DONE,
+          EVENTS.modami_UPLOAD.VIDEO_PROCESSING_DONE,
           {
             videoId,
             postId: video.props?.postId,

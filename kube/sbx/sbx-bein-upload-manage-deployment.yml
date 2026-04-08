@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: modami-upload-manage
+  namespace: default
+  labels:
+    app: modami-upload-manage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: modami-upload-manage
+  template:
+    metadata:
+      labels:
+        app: modami-upload-manage
+    spec:
+      containers:
+        - name: modami-upload-manage
+          image: modamigroup/modami-upload-manage-sbx:$COMMIT_SHA1
+          imagePullPolicy: Always
+          command: ['sh', '-c']
+          args: ['npx sequelize-cli db:migrate --config ./sequelize/file/config.js --migrations-path ./sequelize/file/migrations/ && npx sequelize-cli db:migrate --config ./sequelize/video/config.js --migrations-path ./sequelize/video/migrations/ && node dist/main.js']
+          ports:
+            - containerPort: 3000
+              name: http
+
+          # Limit the resources for the container
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: '1'
+            requests:
+              memory: 256Mi
+              cpu: '0.2'
+
+          # Use all environment variables defined in the sbx-stream-configmap and sbx-stream-secret 
+          envFrom:
+            - configMapRef:
+                name: sbx-upload-manage-configmap
+            - secretRef:
+                name: sbx-upload-manage-secret
+            - secretRef:
+                name: modami-upload-manage-sbx-managed-secret
+
+      # Docker credentials to access themodami private registry
+      imagePullSecrets:
+        - name: dockerhubregistrykey
