@@ -1,43 +1,47 @@
-FROM node:20.19.0 AS base
+FROM node:20.15.1 AS development
 
 WORKDIR /usr/src/app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
+COPY package*.json ./
+
+COPY yarn.lock ./
+
+RUN yarn install
+
+RUN yarn add glob@^10.4.5 rimraf@^5.0.9
+
+RUN yarn global add @nestjs/cli@^9.3.0
 
 
-FROM base AS development
-
-COPY package*.json yarn.lock ./
-
-RUN --mount=type=cache,target=/root/.yarn \
-    YARN_CACHE_FOLDER=/root/.yarn yarn install --frozen-lockfile
 
 COPY . .
+
+RUN export NODE_OPTIONS="--max-old-space-size=5120"
 
 RUN yarn build
 
 
-FROM base AS production
+FROM node:20.15.1 as production
 
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 
-COPY --from=development /usr/src/app/package*.json ./
-COPY --from=development /usr/src/app/yarn.lock ./
+WORKDIR /usr/src/app
 
-RUN yarn install --production --frozen-lockfile
+COPY package*.json ./
+
+COPY yarn.lock ./
+
+RUN yarn --production
+
+RUN yarn add @nestjs/swagger@^6.2.1 typescript@^4.7.4 ts-node@^10.0.0
 
 COPY --from=development /usr/src/app/dist ./dist
+
 COPY --from=development /usr/src/app/sequelize ./sequelize
+
 COPY --from=development /usr/src/app/.sequelizerc ./.sequelizerc
+
 COPY --from=development /usr/src/app/scripts ./scripts
-
-RUN addgroup --system appgroup \
-    && adduser --system --ingroup appgroup appuser
-USER appuser
-
-EXPOSE 3000
 
 CMD ["node", "dist/main.js"]
