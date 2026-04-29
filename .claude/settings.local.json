@@ -22,7 +22,8 @@
       "Bash(AWS_ACCESS_KEY_ID=minioadmin AWS_SECRET_ACCESS_KEY=minioadmin123 \\\\\n  aws s3 ls s3:// --endpoint-url http://localhost:9000 --region us-east-1 2>&1)",
       "Bash(AWS_ACCESS_KEY_ID=minioadmin AWS_SECRET_ACCESS_KEY=minioadmin123 \\\\\n  aws s3api list-buckets --endpoint-url http://localhost:9000 --region us-east-1 2>&1)",
       "Bash(for bucket:*)",
-      "Bash(AWS_ACCESS_KEY_ID=minioadmin AWS_SECRET_ACCESS_KEY=minioadmin123 \\\\\n  aws s3 cp /usr/share/cups/ipptool/gray.jpg s3://images/test-upload.jpg \\\\\n  --endpoint-url http://localhost:9000 --region us-east-1 2>&1)"
+      "Bash(AWS_ACCESS_KEY_ID=minioadmin AWS_SECRET_ACCESS_KEY=minioadmin123 \\\\\n  aws s3 cp /usr/share/cups/ipptool/gray.jpg s3://images/test-upload.jpg \\\\\n  --endpoint-url http://localhost:9000 --region us-east-1 2>&1)",
+      "Bash(git add:*)"
     ]
   }
 }
