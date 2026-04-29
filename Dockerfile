@@ -6,7 +6,9 @@ COPY package*.json ./
 
 COPY yarn.lock ./
 
-RUN apt-get update && apt-get install -y libpq-dev && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y libpq-dev ffmpeg xz-utils && rm -rf /var/lib/apt/lists/*
+
+ENV FFMPEG_STATIC_BINARY_PATH=/usr/bin/ffmpeg
 
 RUN yarn install
 
@@ -34,7 +36,9 @@ COPY package*.json ./
 
 COPY yarn.lock ./
 
-RUN apt-get update && apt-get install -y libpq-dev && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y libpq-dev ffmpeg xz-utils && rm -rf /var/lib/apt/lists/*
+
+ENV FFMPEG_STATIC_BINARY_PATH=/usr/bin/ffmpeg
 
 RUN yarn --production
 
