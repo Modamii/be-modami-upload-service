@@ -1,36 +1,6 @@
 import { AppHelper } from '../helpers/app.helper';
 
 export const ROUTES = {
-  VIDEO: {
-    CREATE: {
-      PATH: 'videos',
-      VERSIONS: AppHelper.getVersionsSupported(),
-    },
-    GET_VIDEOS: {
-      PATH: 'videos',
-      VERSIONS: AppHelper.getVersionsSupported(),
-    },
-    GET_DETAIL: {
-      PATH: 'videos/:id',
-      VERSIONS: AppHelper.getVersionsSupported(),
-    },
-    GET_BY_IDS: {
-      PATH: 'videos/ids',
-      VERSIONS: AppHelper.getVersionsSupported(),
-    },
-    UPLOAD: {
-      PATH: 'videos/:id',
-      VERSIONS: AppHelper.getVersionsSupported(),
-    },
-    GET_KATURA_REDIRECT_URL: {
-      PATH: 'videos/:id/kaltura/:format',
-      VERSIONS: AppHelper.getVersionsSupported(),
-    },
-    PROCESSING: {
-      PATH: 'videos/:id/processing',
-      VERSIONS: AppHelper.getVersionsSupported(),
-    },
-  },
   IMAGE: {
     CREATE: {
       PATH: '',
@@ -76,12 +46,6 @@ export const ROUTES = {
     },
   },
   INTERNAL: {
-    VIDEO: {
-      GET_BY_IDS: {
-        PATH: 'internal/videos/ids',
-        VERSIONS: AppHelper.getVersionsSupported(),
-      },
-    },
     FILE: {
       GET_BY_IDS: {
         PATH: 'internal/files/ids',

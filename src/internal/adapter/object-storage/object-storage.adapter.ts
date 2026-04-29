@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { ObjectStorageService } from '../../../pkg/object-storage/object-storage.service';
 import { IObjectStoragePort } from '../../port/object-storage.port';
 import { PresignedPostDto } from '../../domain/image.domain';
-import { VideoUploadType } from '../../dto/upload.dto';
 
 @Injectable()
 export class ObjectStorageAdapter implements IObjectStoragePort {
@@ -18,10 +17,6 @@ export class ObjectStorageAdapter implements IObjectStoragePort {
 
   createPresignedPost(path: string, bucket: string, options?: { contentType?: string; ExpiresInSecond?: number; limitSize?: number }): Promise<PresignedPostDto> {
     return this.storageService.createPresignedPost(path, bucket, options);
-  }
-
-  downloadVideoFromS3(s3Key: string, localPath: string): Promise<void> {
-    return this.storageService.downloadVideoFromS3(s3Key, localPath);
   }
 
   downloadExternalUrl(url: string, localPath: string): Promise<void> {
@@ -40,32 +35,12 @@ export class ObjectStorageAdapter implements IObjectStoragePort {
     return this.storageService.getBucketByPath(path);
   }
 
-  uploadOriginVideo(localPath: string, videoId: string, originalName: string, resource: VideoUploadType): Promise<{ src: string }> {
-    return this.storageService.uploadOriginVideo(localPath, videoId, originalName, resource);
-  }
-
-  uploadVariantVideo(remoteUrl: string, videoId: string, quality: string): Promise<{ src: string }> {
-    return this.storageService.uploadVariantVideo(remoteUrl, videoId, quality);
-  }
-
-  uploadThumbnailToS3(path: string, key: string): Promise<{ src: string }> {
-    return this.storageService.uploadThumbnailToS3(path, key);
-  }
-
   uploadFileToS3(path: string, key: string, originalName: string): Promise<{ src: string }> {
     return this.storageService.uploadFileToS3(path, key, originalName);
   }
 
   uploadImageToS3(path: string, key: string): Promise<{ src: string }> {
     return this.storageService.uploadImageToS3(path, key);
-  }
-
-  deleteVideos(urls: string[]): Promise<void> {
-    return this.storageService.deleteVideos(urls);
-  }
-
-  deleteThumbnails(urls: string[]): Promise<void> {
-    return this.storageService.deleteThumbnails(urls);
   }
 
   deleteFiles(paths: string[]): Promise<void> {

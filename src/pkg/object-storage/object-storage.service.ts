@@ -19,7 +19,6 @@ import {
 import { deleteFile } from '../common/helpers';
 
 import { AwsS3Config } from '../configs/config.interface';
-import { VideoUploadType } from '../common/dto/upload.dto';
 import {
   DELETE_OBJECT_BULK_SIZE_IN_NUMBER,
   DOWNLOAD_EXTERNAL_TIMEOUT,
@@ -28,7 +27,6 @@ import { Resource, PresignedPostDto } from '../../internal/domain/image.domain';
 import { IMAGE_PRESIGNED_URL_EXPIRED } from '../../internal/domain/image.constant';
 import { STATUS_NOT_RETRY } from '../common/constants';
 import { Exception, EXCEPTIONS } from '../common/exceptions';
-import { VideoHelper } from '../../internal/domain/video.helper';
 
 const finished = promisify(stream.finished);
 
@@ -76,9 +74,7 @@ export class ObjectStorageService {
       const params = {
         Bucket: bucket,
         Key: path,
-        Expires: options.ExpiresInSecond || IMAGE_PRESIGNED_URL_EXPIRED, // second; expiry start upload
-        // ACL: S3_ACL, //private, public-read, public-read-write, authenticated-read,... https://docs.aws.amazon.com/AmazonS3/latest/userguide/acl-overview.html
-        // ContentLength: options.size,
+        Expires: options.ExpiresInSecond || IMAGE_PRESIGNED_URL_EXPIRED,
       };
 
       if (options?.contentType) {
@@ -105,9 +101,7 @@ export class ObjectStorageService {
       const params = {
         Bucket: bucket,
         Key: path,
-        Expires: options?.ExpiresInSecond || IMAGE_PRESIGNED_URL_EXPIRED, // second; expiry start upload
-        // ACL: S3_ACL, //private, public-read, public-read-write, authenticated-read,... https://docs.aws.amazon.com/AmazonS3/latest/userguide/acl-overview.html
-        // ContentLength: options.size,
+        Expires: options?.ExpiresInSecond || IMAGE_PRESIGNED_URL_EXPIRED,
       };
 
       this.s3
@@ -151,33 +145,6 @@ export class ObjectStorageService {
     });
   }
 
-  async downloadVideoFromS3(s3Key: string, localPath: string): Promise<void> {
-    // https://gist.github.com/milesrichardson/db724faf7615f0ea208590a52da2c0eb
-    const writeStream = fs.createWriteStream(localPath);
-    return new Promise((resolve, reject) => {
-      this.s3
-        .getObject({
-          Bucket: this.s3Config.userUploadVideosBucket,
-          Key: s3Key,
-        })
-        .createReadStream()
-        .pipe(writeStream)
-        .on('close', () => {
-          writeStream.close();
-          return resolve();
-        })
-        .on('error', (err) => {
-          this.logger.log({
-            message: 'download file from S3 failed',
-            error: err,
-            key: s3Key,
-          });
-          writeStream.close();
-          return reject(err);
-        });
-    });
-  }
-
   @Retryable({
     maxAttempts: 4,
     backOffPolicy: BackOffPolicy.ExponentialBackOffPolicy,
@@ -191,8 +158,6 @@ export class ObjectStorageService {
     },
   })
   async downloadExternalUrl(url: string, localPath: string): Promise<void> {
-    // Reference https://stackoverflow.com/questions/55374755/node-js-axios-download-file-stream-and-writefile
-    // https://stackoverflow.com/questions/36690451/timeout-feature-in-the-axios-library-is-not-working
     const writer = fs.createWriteStream(localPath);
     const source = axios.default.CancelToken.source();
     const timeout = setTimeout(() => {
@@ -207,7 +172,7 @@ export class ObjectStorageService {
       })
       .then((response) => {
         response.data.pipe(writer);
-        return finished(writer); //this is a Promise
+        return finished(writer);
       })
       .finally(() => {
         clearTimeout(timeout);
@@ -290,9 +255,6 @@ export class ObjectStorageService {
   }
 
   getBucketByPath(path: string): string {
-    if (this.isVideoBucket(path)) {
-      return this.s3Config.userUploadVideosBucket;
-    }
     if (this.isEKycBucket(path)) {
       return this.s3Config.eKycBucket;
     }
@@ -303,16 +265,6 @@ export class ObjectStorageService {
       return this.s3Config.userUploadFilesBucket;
     }
     throw new Exception(EXCEPTIONS.BUCKET.NOT_FOUND).withFields({});
-  }
-
-  isVideoBucket(path: string): boolean {
-    const arrRegex = [/video/];
-    for (const regex of arrRegex) {
-      if (path.match(regex)) {
-        return true;
-      }
-    }
-    return false;
   }
 
   isImageBucket(path: string): boolean {
@@ -343,52 +295,6 @@ export class ObjectStorageService {
       }
     }
     return false;
-  }
-
-  async uploadOriginVideo(
-    localPath: string,
-    videoId: string,
-    originalName: string,
-    resource: VideoUploadType,
-  ): Promise<{ src: string }> {
-    const key = VideoHelper.getOriginVideoS3Key(resource, {
-      suffix: path.extname(originalName),
-      videoId: videoId,
-    });
-    return await this.uploadToS3(
-      this.s3Config.userUploadVideosBucket,
-      localPath,
-      key,
-    );
-  }
-
-  async uploadVariantVideo(
-    remoteUrl: string,
-    videoId: string,
-    quality: string,
-  ): Promise<{ src: string }> {
-    const fileTempPath = path.join(this.tempPath, uuidV4());
-    try {
-      await VideoHelper.downloadRemoteVideo(remoteUrl, fileTempPath);
-      const s3Key = VideoHelper.getTranscodedS3Key(videoId, quality);
-      const { src } = await this.uploadToS3(
-        this.s3Config.userUploadVideosBucket,
-        fileTempPath,
-        s3Key,
-      );
-      deleteFile(fileTempPath);
-      return { src };
-    } catch (error) {
-      deleteFile(fileTempPath);
-      throw error;
-    }
-  }
-
-  async uploadThumbnailToS3(
-    path: string,
-    key: string,
-  ): Promise<{ src: string }> {
-    return this.uploadToS3(this.s3Config.userUploadVideosBucket, path, key);
   }
 
   async uploadFileToS3(
@@ -439,16 +345,6 @@ export class ObjectStorageService {
     }
   }
 
-  async deleteVideos(urls: string[]) {
-    const bucket = this.s3Config.userUploadVideosBucket;
-    await this.bulkDeleteByUrls(bucket, urls);
-  }
-
-  async deleteThumbnails(urls: string[]) {
-    const bucket = this.s3Config.userUploadVideosBucket;
-    await this.bulkDeleteByUrls(bucket, urls);
-  }
-
   async deleteFiles(paths: string[]) {
     const bucket = this.s3Config.userUploadFilesBucket;
     await this.bulkDeleteByUrls(bucket, paths);
@@ -465,11 +361,9 @@ export class ObjectStorageService {
   }
 
   private parseKeyFromUrl(url: string, bucket: string): string {
-    // Try s3:// format first (legacy AWS S3 URLs)
     const s3Parsed = s3ParseUrl(url);
     if (s3Parsed?.key) return s3Parsed.key;
 
-    // Handle HTTP/HTTPS path-style URLs (MinIO: http://host/bucket/key)
     try {
       const parsed = new URL(url);
       const parts = parsed.pathname.split('/').filter(Boolean);
@@ -488,7 +382,6 @@ export class ObjectStorageService {
   }
 
   private async bulkDeleteByKeys(bucket: string, keys: string[]) {
-    // Reference https://stackoverflow.com/questions/8495687/split-array-into-chunks
     for (let i = 0; i < keys.length; i += DELETE_OBJECT_BULK_SIZE_IN_NUMBER) {
       const chunk = keys.slice(i, i + DELETE_OBJECT_BULK_SIZE_IN_NUMBER);
       await this.deleteObjects(bucket, chunk);

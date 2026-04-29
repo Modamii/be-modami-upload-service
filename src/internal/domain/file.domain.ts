@@ -1,5 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
+import { FileUploadType, FileStoragePrefix } from '../dto/upload.dto';
+
+export class FileHelper {
+  static getOriginFileS3Key(
+    fileUploadType: FileUploadType,
+    options: { fileId: string },
+  ): string {
+    return `file/${FileStoragePrefix[fileUploadType]}/${options.fileId}`;
+  }
+}
 
 export class FilePropsDto {
   postId?: string;

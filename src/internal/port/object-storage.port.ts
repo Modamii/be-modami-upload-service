@@ -1,5 +1,4 @@
 import { PresignedPostDto } from '../domain/image.domain';
-import { VideoUploadType } from '../dto';
 
 export interface IObjectStoragePort {
   getPresignedUrl(
@@ -28,8 +27,6 @@ export interface IObjectStoragePort {
     },
   ): Promise<PresignedPostDto>;
 
-  downloadVideoFromS3(s3Key: string, localPath: string): Promise<void>;
-
   downloadExternalUrl(url: string, localPath: string): Promise<void>;
 
   upload(
@@ -46,21 +43,6 @@ export interface IObjectStoragePort {
 
   getBucketByPath(path: string): string;
 
-  uploadOriginVideo(
-    localPath: string,
-    videoId: string,
-    originalName: string,
-    resource: VideoUploadType,
-  ): Promise<{ src: string }>;
-
-  uploadVariantVideo(
-    remoteUrl: string,
-    videoId: string,
-    quality: string,
-  ): Promise<{ src: string }>;
-
-  uploadThumbnailToS3(path: string, key: string): Promise<{ src: string }>;
-
   uploadFileToS3(
     path: string,
     key: string,
@@ -68,10 +50,6 @@ export interface IObjectStoragePort {
   ): Promise<{ src: string }>;
 
   uploadImageToS3(path: string, key: string): Promise<{ src: string }>;
-
-  deleteVideos(urls: string[]): Promise<void>;
-
-  deleteThumbnails(urls: string[]): Promise<void>;
 
   deleteFiles(paths: string[]): Promise<void>;
 

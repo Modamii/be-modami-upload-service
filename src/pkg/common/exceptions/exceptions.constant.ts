@@ -44,34 +44,6 @@ export const EXCEPTIONS = {
     },
   },
 
-  VIDEO: {
-    NOT_FOUND: {
-      customCode: 'api.video.not_found',
-      statusCode: HttpStatus.NOT_FOUND,
-      message: 'error.api.video.not_found',
-    },
-    PROCESS_VIDEO_ERROR: {
-      customCode: 'video.process.error',
-      statusCode: HttpStatus.REQUEST_TIMEOUT,
-      message: 'error.video.process.error',
-    },
-    VIDEO_ID_HAS_BEEN_USED: {
-      customCode: 'api.video.create.video_id_has_been_used',
-      statusCode: HttpStatus.BAD_REQUEST,
-      message: 'error.api.video.create.video_id_has_been_used',
-    },
-    NOT_FOUND_ORIGIN_URL: {
-      customCode: 'api.video.processing.origin_not_found',
-      statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-      message: 'error.api.video.processing.origin_not_found',
-    },
-    GEN_S3_FAILED: {
-      customCode: 'api.video.gen_s3_failed',
-      statusCode: HttpStatus.BAD_REQUEST,
-      message: 'error.api.video.gen_s3_failed',
-    },
-  },
-
   FILE: {
     NOT_FOUND: {
       customCode: 'api.file.not_found',

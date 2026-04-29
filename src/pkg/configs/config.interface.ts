@@ -5,10 +5,8 @@ export interface Config {
   database: DatabaseConfig;
   s3: AwsS3Config;
   kafka: KafkaConfig;
-  vimeo: vimeoConfig;
   cognito: ICognitoConfig;
   tempPath: string;
-  hlsPrefixUrl: string;
   swagger: ISwaggerConfig;
   redis: IRedisConfig;
   sqs: ISQSConfig;
@@ -40,7 +38,6 @@ export interface AwsS3Config {
   region: string;
   accessKeyId: string;
   secretAccessKey: string;
-  userUploadVideosBucket: string;
   userUploadImagesBucket: string;
   userUploadFilesBucket: string;
   eKycBucket: string;
@@ -60,12 +57,6 @@ export interface KafkaConfig {
         key: string;
         ca: string;
       };
-}
-
-export interface vimeoConfig {
-  clientID: string;
-  secret: string;
-  accessToken: string;
 }
 
 export interface ICognitoConfig {
@@ -96,5 +87,4 @@ export interface IRedisConfig {
 export interface ISQSConfig {
   enabled: boolean;
   resizeImageQueueUrl: string;
-  videoQueueUrl: string;
 }

@@ -1,4 +1,4 @@
-import { FileModel, VideoModel, ImageModel } from './models';
+import { FileModel, ImageModel } from './models';
 import { Module } from '@nestjs/common';
 import { Dialect } from 'sequelize/types';
 import { ConfigService } from '@nestjs/config';
@@ -12,7 +12,7 @@ import { DatabaseConfig } from '../configs/config.interface';
       useFactory: (configService: ConfigService) => {
         const db = configService.get<DatabaseConfig>('database');
         return {
-          models: [VideoModel, ImageModel, FileModel],
+          models: [ImageModel, FileModel],
           operatorsAliases: null,
           host: db.host,
           port: db.port,
@@ -57,7 +57,7 @@ import { DatabaseConfig } from '../configs/config.interface';
         };
       },
     }),
-    SequelizeModule.forFeature([VideoModel, ImageModel, FileModel]),
+    SequelizeModule.forFeature([ImageModel, FileModel]),
   ],
   exports: [SequelizeModule],
 })

@@ -25,7 +25,6 @@ export default (): Config => ({
     region: process.env.MINIO_REGION || 'us-east-1',
     accessKeyId: process.env.MINIO_ACCESS_KEY,
     secretAccessKey: process.env.MINIO_SECRET_KEY,
-    userUploadVideosBucket: process.env.MINIO_VIDEOS_BUCKET,
     userUploadImagesBucket: process.env.MINIO_IMAGES_BUCKET,
     userUploadFilesBucket: process.env.MINIO_FILES_BUCKET,
     eKycBucket: process.env.MINIO_EKYC_BUCKET,
@@ -51,11 +50,6 @@ export default (): Config => ({
           key: '',
           ca: '',
         },
-  },
-  vimeo: {
-    clientID: process.env.VIMEO_CLIENT_ID,
-    secret: process.env.VIMEO_CLIENT_SECRET,
-    accessToken: process.env.VIMEO_ACCESS_TOKEN,
   },
   cognito: {
     region: process.env.AWS_COGNITO_REGION,
@@ -91,13 +85,9 @@ export default (): Config => ({
       (process.env.REDIS_CACHE_PREFIX || 'local').replace(/:$/g, '') + ':',
   },
   tempPath: process.env.TEMP_PATH || '/tmp/',
-  hlsPrefixUrl:
-    process.env.HLS_PREFIX_URL +
-    (process.env.HLS_PREFIX_URL.slice(-1) != '/' ? '/' : ''),
   sqs: {
     enabled: process.env.SQS_ENABLED === 'true',
     resizeImageQueueUrl: process.env.AWS_S3_SQS_RESIZE_IMAGE_QUEUE_URL,
-    videoQueueUrl: process.env.AWS_S3_SQS_VIDEO_QUEUE_URL,
   },
   imageProxyUrl: process.env.IMAGE_PROXY_URL,
 });

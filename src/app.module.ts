@@ -17,8 +17,6 @@ import { LibModule } from './pkg/lib.module';
 import { ObjectStorageModule } from './pkg/object-storage/object-storage.module';
 import { KafkaModule } from './pkg/kafka';
 import { I18nGlobalModule } from './pkg/translate/i18n-global.module';
-import { VimeoModule } from './pkg/vimeo/vimeo.module';
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -36,7 +34,6 @@ import { VimeoModule } from './pkg/vimeo/vimeo.module';
     KafkaModule,
     ConsumerModule,
     ObjectStorageModule,
-    VimeoModule,
     InternalModule,
     I18nGlobalModule,
   ],

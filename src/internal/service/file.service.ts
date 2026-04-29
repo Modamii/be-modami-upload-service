@@ -9,7 +9,7 @@ import { deleteFile, getUploadTempPath } from '../../pkg/common/helpers';
 import { FileUploadType } from '../dto/upload.dto';
 import { Exception, EXCEPTIONS } from '../../pkg/common/exceptions';
 import { DELETE_FILE_NOT_USE_BULK_SIZE_IN_NUMBER } from '../domain/file.constant';
-import { VideoHelper } from '../domain/video.helper';
+import { FileHelper } from '../domain/file.domain';
 
 @Injectable()
 export class FileService {
@@ -117,7 +117,7 @@ export class FileService {
         });
       }
       // upload to s3
-      const key = VideoHelper.getOriginFileS3Key(fileUploadType, {
+      const key = FileHelper.getOriginFileS3Key(fileUploadType, {
         fileId,
       });
       const { src } = await this.storagePort.uploadFileToS3(
