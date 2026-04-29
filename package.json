@@ -51,7 +51,7 @@
     "kafkajs": "^2.0.0",
     "morgan": "^1.10.0",
     "nest-commander": "^3.6.1",
-    "nestjs-i18n": "^10.3.1",
+    "nestjs-i18n": "^10.4.2",
     "pg": "^8.7.3",
     "pg-native": "^3.0.1",
     "reflect-metadata": "^0.2.0",
