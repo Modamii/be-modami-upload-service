@@ -6,7 +6,7 @@ COPY package*.json ./
 
 COPY yarn.lock ./
 
-RUN yarn install
+RUN yarn install --ignore-engines
 
 RUN yarn add glob@^10.4.5 rimraf@^5.0.9
 
@@ -33,7 +33,7 @@ COPY package*.json ./
 
 COPY yarn.lock ./
 
-RUN yarn --production
+RUN yarn --production --ignore-engines
 
 RUN yarn add @nestjs/swagger@^6.2.1 typescript@^4.7.4 ts-node@^10.0.0
 
