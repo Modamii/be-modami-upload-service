@@ -14,6 +14,7 @@ RUN yarn global add @nestjs/cli@^9.3.0
 
 
 
+
 COPY . .
 
 RUN export NODE_OPTIONS="--max-old-space-size=5120"
