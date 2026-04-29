@@ -6,9 +6,10 @@ COPY package*.json ./
 
 COPY yarn.lock ./
 
-RUN apt-get update && apt-get install -y libpq-dev ffmpeg xz-utils && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends libpq-dev ffmpeg xz-utils && rm -rf /var/lib/apt/lists/*
 
 ENV FFMPEG_STATIC_BINARY_PATH=/usr/bin/ffmpeg
+ENV FFMPEG_STATIC_SKIP_DOWNLOAD=true
 
 RUN --mount=type=cache,target=/root/.yarn YARN_CACHE_FOLDER=/root/.yarn yarn install
 
@@ -30,9 +31,10 @@ ENV NODE_ENV=${NODE_ENV}
 
 WORKDIR /usr/src/app
 
-RUN apt-get update && apt-get install -y libpq-dev ffmpeg xz-utils && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends libpq-dev ffmpeg xz-utils && rm -rf /var/lib/apt/lists/*
 
 ENV FFMPEG_STATIC_BINARY_PATH=/usr/bin/ffmpeg
+ENV FFMPEG_STATIC_SKIP_DOWNLOAD=true
 
 COPY --from=development /usr/src/app/node_modules ./node_modules
 
