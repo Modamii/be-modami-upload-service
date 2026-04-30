@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { ErrorCode } from '../exceptions/error-code';
 
 export class ResponseMeta {
   @ApiProperty()
@@ -12,8 +13,8 @@ export class ResponseMeta {
 }
 
 export class ResponseError {
-  @ApiProperty()
-  public code: string;
+  @ApiProperty({ enum: ErrorCode })
+  public code: ErrorCode;
 
   @ApiProperty()
   public message: string;

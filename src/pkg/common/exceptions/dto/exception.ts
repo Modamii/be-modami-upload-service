@@ -1,5 +1,7 @@
+import { ErrorCode } from '../error-code';
+
 export interface IException {
-  customCode?: string; // HTTP_STATUS_ID
+  customCode?: ErrorCode; // machine-readable error code, mirrors apperror.Code
   message?: string; // Message to be display to the end user without debugging information
   detailedError?: string; // Internal error string to help the developer
   requestId?: string; // The RequestId that's also set in the header

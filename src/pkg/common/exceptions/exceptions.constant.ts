@@ -1,44 +1,45 @@
 import { HttpStatus } from '@nestjs/common';
+import { ErrorCode } from './error-code';
 
 export const EXCEPTIONS = {
   COMMON: {
     VALIDATION_ERROR: {
-      customCode: 'api.validation_error',
+      customCode: ErrorCode.VALIDATION_ERROR,
       statusCode: HttpStatus.BAD_REQUEST,
       message: 'error.api.validation_error',
     },
     BAD_REQUEST: {
-      customCode: 'api.bad_request',
+      customCode: ErrorCode.BAD_REQUEST,
       statusCode: HttpStatus.BAD_REQUEST,
       message: 'error.api.bad_request',
     },
     UNAUTHORIZED: {
-      customCode: 'api.unauthorized',
+      customCode: ErrorCode.UNAUTHORIZED,
       statusCode: HttpStatus.UNAUTHORIZED,
       message: 'error.api.unauthorized',
     },
     FORBIDDEN: {
-      customCode: 'api.forbidden',
+      customCode: ErrorCode.FORBIDDEN,
       statusCode: HttpStatus.FORBIDDEN,
       message: 'error.api.forbidden',
     },
     AUTH_TOKEN_EXPIRED: {
-      customCode: 'app.auth_token.expired',
+      customCode: ErrorCode.UNAUTHORIZED,
       statusCode: HttpStatus.UNAUTHORIZED,
       message: 'error.app.auth_token.expired',
     },
     INTERNAL_SERVER_ERROR: {
-      customCode: 'api.server_internal_error',
+      customCode: ErrorCode.INTERNAL_ERROR,
       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       message: 'error.api.server_internal_error',
     },
     SERVICE_UNAVAILABLE: {
-      customCode: 'api.service_unavailable',
+      customCode: ErrorCode.SERVICE_UNAVAIL,
       statusCode: HttpStatus.SERVICE_UNAVAILABLE,
       message: 'error.api.service_unavailable',
     },
     NOT_FOUND_USER_IN_CACHE: {
-      customCode: 'api.server_internal_error',
+      customCode: ErrorCode.INTERNAL_ERROR,
       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       message: 'error.api.server_internal_error',
     },
@@ -46,55 +47,55 @@ export const EXCEPTIONS = {
 
   FILE: {
     NOT_FOUND: {
-      customCode: 'api.file.not_found',
+      customCode: ErrorCode.NOT_FOUND,
       statusCode: HttpStatus.NOT_FOUND,
       message: 'error.api.file.not_found',
     },
     FILE_ID_HAS_BEEN_USED: {
-      customCode: 'api.file.create.file_id_has_been_used',
-      statusCode: HttpStatus.BAD_REQUEST,
+      customCode: ErrorCode.CONFLICT,
+      statusCode: HttpStatus.CONFLICT,
       message: 'error.api.file.create.file_id_has_been_used',
     },
   },
 
   IMAGE: {
     NOT_FOUND: {
-      customCode: 'api.image.not_found',
+      customCode: ErrorCode.NOT_FOUND,
       statusCode: HttpStatus.NOT_FOUND,
       message: 'error.api.image.not_found',
     },
     IMAGE_ID_HAS_BEEN_USED: {
-      customCode: 'api.image.create.image_id_has_been_used',
-      statusCode: HttpStatus.BAD_REQUEST,
+      customCode: ErrorCode.CONFLICT,
+      statusCode: HttpStatus.CONFLICT,
       message: 'error.api.image.create.image_id_has_been_used',
     },
     PROCESS_IMAGE_ERROR: {
-      customCode: 'image.process.error',
+      customCode: ErrorCode.REQUEST_TIMEOUT,
       statusCode: HttpStatus.REQUEST_TIMEOUT,
       message: 'error.image.process.error',
     },
     UNPROCESSABLE: {
-      customCode: 'image.unprocessable',
+      customCode: ErrorCode.UNPROCESSABLE,
       statusCode: HttpStatus.UNPROCESSABLE_ENTITY,
       message: 'error.image.unprocessable',
     },
     NOT_SUPPORT: {
-      customCode: 'image.not_support',
+      customCode: ErrorCode.UNPROCESSABLE,
       statusCode: HttpStatus.UNPROCESSABLE_ENTITY,
       message: 'error.image.not_support',
     },
     LIMIT_FILE_SIZE: {
-      customCode: 'image.file_size.too_large',
+      customCode: ErrorCode.UNPROCESSABLE,
       statusCode: HttpStatus.UNPROCESSABLE_ENTITY,
       message: 'error.image.file_size.too_large',
     },
     LIMIT_RESOLUTION: {
-      customCode: 'image.resolution.too_large',
+      customCode: ErrorCode.UNPROCESSABLE,
       statusCode: HttpStatus.UNPROCESSABLE_ENTITY,
       message: 'error.image.resolution.too_large',
     },
     LIMIT_ANIMATION_FRAMES: {
-      customCode: 'image.animation_frames.too_large',
+      customCode: ErrorCode.UNPROCESSABLE,
       statusCode: HttpStatus.UNPROCESSABLE_ENTITY,
       message: 'error.image.animation_frames.too_large',
     },
@@ -102,7 +103,7 @@ export const EXCEPTIONS = {
 
   BUCKET: {
     NOT_FOUND: {
-      customCode: 'bucket.not_found',
+      customCode: ErrorCode.NOT_FOUND,
       statusCode: HttpStatus.NOT_FOUND,
       message: 'error.bucket.not_found',
     },
@@ -110,7 +111,7 @@ export const EXCEPTIONS = {
 
   UPLOAD: {
     FILE_SIZE: {
-      customCode: 'upload.error.file_size',
+      customCode: ErrorCode.PAYLOAD_TOO_LARGE,
       statusCode: HttpStatus.PAYLOAD_TOO_LARGE,
       message: 'error.upload.error.file_size',
     },

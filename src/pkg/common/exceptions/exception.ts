@@ -1,9 +1,10 @@
 import { HttpStatus } from '@nestjs/common';
 import { IException } from './dto/exception';
+import { ErrorCode } from './error-code';
 import { I18nContext } from 'nestjs-i18n';
 
 export class Exception implements IException {
-  customCode?: string;
+  customCode?: ErrorCode;
   message?: string;
   detailedError?: string;
   requestId?: string;
