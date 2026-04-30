@@ -113,6 +113,7 @@ async function bootstrap() {
   app.setGlobalPrefix('v1/upload-services');
   await setupGlobal(app, configService);
   await setupSwagger(app, configService);
+
   await setupKafka(app, configService);
 
   const nestConfig = configService.get<NestConfig>('nest');
