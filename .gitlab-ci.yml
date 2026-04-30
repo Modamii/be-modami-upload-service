@@ -12,7 +12,7 @@ variables:
 
 build:
   stage: build
-  image: node:20.19.0-alpine
+  image: node:24-alpine
   cache:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
