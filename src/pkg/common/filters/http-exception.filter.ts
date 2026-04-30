@@ -49,11 +49,19 @@ export class HttpExceptionFilter implements ExceptionFilter {
   ): Response {
     return response.status(exception.statusCode).json(
       new ResponseDto({
-        code: exception.customCode,
-        meta: {
+        success: false,
+        error: {
+          code: exception.customCode,
           message: exception.message,
-          detailedError: this.isDevelop() ? exception.detailedError : null,
-          stack: this.isDevelop() ? this.getStack(exception) : null,
+        },
+        meta: {
+          timestamp: Math.floor(Date.now() / 1000),
+          ...(this.isDevelop() && {
+            detailedError: exception.detailedError
+              ? String(exception.detailedError)
+              : undefined,
+            stack: this.getStack(exception),
+          }),
         },
       }),
     );
@@ -71,11 +79,17 @@ export class HttpExceptionFilter implements ExceptionFilter {
     }
     return response.status(status).json(
       new ResponseDto({
-        code: code,
-        meta: {
+        success: false,
+        error: {
+          code,
           message: exception.message,
-          stack: this.isDevelop() ? this.getStack(exception) : null,
-          detailedError: JSON.stringify(exception.getResponse()),
+        },
+        meta: {
+          timestamp: Math.floor(Date.now() / 1000),
+          ...(this.isDevelop() && {
+            detailedError: JSON.stringify(exception.getResponse()),
+            stack: this.getStack(exception),
+          }),
         },
       }),
     );
@@ -87,10 +101,16 @@ export class HttpExceptionFilter implements ExceptionFilter {
   ): Response {
     return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json(
       new ResponseDto({
-        code: EXCEPTIONS.COMMON.INTERNAL_SERVER_ERROR.customCode,
-        meta: {
+        success: false,
+        error: {
+          code: EXCEPTIONS.COMMON.INTERNAL_SERVER_ERROR.customCode,
           message: exception['message'],
-          stack: this.isDevelop() ? this.getStack(exception) : null,
+        },
+        meta: {
+          timestamp: Math.floor(Date.now() / 1000),
+          ...(this.isDevelop() && {
+            stack: this.getStack(exception),
+          }),
         },
       }),
     );
@@ -103,11 +123,16 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const status = exception.getStatus();
     return response.status(status).json(
       new ResponseDto({
-        data: exception.getResponse(),
-        code: EXCEPTIONS.COMMON.SERVICE_UNAVAILABLE.customCode,
-        meta: {
+        success: false,
+        error: {
+          code: EXCEPTIONS.COMMON.SERVICE_UNAVAILABLE.customCode,
           message: exception.message,
-          stack: this.getStack(exception),
+        },
+        meta: {
+          timestamp: Math.floor(Date.now() / 1000),
+          ...(this.isDevelop() && {
+            stack: this.getStack(exception),
+          }),
         },
       }),
     );
