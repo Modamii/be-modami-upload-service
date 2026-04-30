@@ -35,8 +35,6 @@ COPY yarn.lock ./
 
 RUN yarn --production --ignore-engines
 
-RUN yarn add @nestjs/swagger@^6.2.1 typescript@^4.7.4 ts-node@^10.0.0
-
 COPY --from=development /usr/src/app/dist ./dist
 
 COPY --from=development /usr/src/app/sequelize ./sequelize
