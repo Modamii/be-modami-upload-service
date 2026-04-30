@@ -43,6 +43,4 @@ COPY --from=development /usr/src/app/sequelize ./sequelize
 
 COPY --from=development /usr/src/app/.sequelizerc ./.sequelizerc
 
-COPY --from=development /usr/src/app/scripts ./scripts
-
 CMD ["node", "dist/main.js"]
