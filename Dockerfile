@@ -1,8 +1,6 @@
-FROM node:24-alpine AS development
+FROM node:24 AS development
 
 WORKDIR /usr/src/app
-
-RUN apk add --no-cache python3 make g++ postgresql-dev perl
 
 COPY package*.json ./
 
@@ -14,17 +12,20 @@ RUN yarn add glob@^10.4.5 rimraf@^5.0.9
 
 RUN yarn global add @nestjs/cli@^9.3.0
 
+
+
+
 COPY . .
 
-RUN NODE_OPTIONS="--max-old-space-size=5120" yarn build
+RUN export NODE_OPTIONS="--max-old-space-size=5120"
+
+RUN yarn build
 
 
-FROM node:24-alpine AS production
+FROM node:24 AS production
 
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
-
-RUN apk add --no-cache libpq perl
 
 WORKDIR /usr/src/app
 
