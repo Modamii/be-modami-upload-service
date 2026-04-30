@@ -25,7 +25,9 @@
       "Bash(AWS_ACCESS_KEY_ID=minioadmin AWS_SECRET_ACCESS_KEY=minioadmin123 \\\\\n  aws s3 cp /usr/share/cups/ipptool/gray.jpg s3://images/test-upload.jpg \\\\\n  --endpoint-url http://localhost:9000 --region us-east-1 2>&1)",
       "Bash(git add:*)",
       "Bash(yarn outdated:*)",
-      "Bash(npx npm-check-updates:*)"
+      "Bash(npx npm-check-updates:*)",
+      "Bash(yarn install:*)",
+      "Bash(git push:*)"
     ]
   }
 }
