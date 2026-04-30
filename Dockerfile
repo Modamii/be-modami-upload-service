@@ -22,7 +22,7 @@ RUN export NODE_OPTIONS="--max-old-space-size=5120"
 RUN yarn build
 
 
-FROM node:24 as production
+FROM node:24 AS production
 
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
