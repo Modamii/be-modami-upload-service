@@ -92,6 +92,9 @@
     "tsconfig-paths": "4.2.0",
     "typescript": "^5.0.0"
   },
+  "resolutions": {
+    "picomatch": "^4.0.4"
+  },
   "jest": {
     "moduleFileExtensions": [
       "js",
